@@ -7,6 +7,7 @@ import com.budgetwise.exception.ResourceNotFoundException;
 import com.budgetwise.repository.CategoryRepository;
 import com.budgetwise.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class TransactionService {
     private final WebSocketService webSocketService;
     
     @Transactional
+    @CacheEvict(value = {"dashboardSummary", "monthlyTrends", "categoryBreakdown"}, allEntries = true)
     public TransactionDto createTransaction(TransactionDto dto, Long userId) {
         // Validate category exists
         Category category = categoryRepository.findById(dto.getCategoryId())
@@ -85,6 +87,7 @@ public class TransactionService {
     }
     
     @Transactional
+    @CacheEvict(value = {"dashboardSummary", "monthlyTrends", "categoryBreakdown"}, allEntries = true)
     public TransactionDto updateTransaction(Long id, TransactionDto dto, Long userId) {
         Transaction transaction = transactionRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
@@ -128,6 +131,7 @@ public class TransactionService {
     }
     
     @Transactional
+    @CacheEvict(value = {"dashboardSummary", "monthlyTrends", "categoryBreakdown"}, allEntries = true)
     public void deleteTransaction(Long id, Long userId) {
         Transaction transaction = transactionRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));

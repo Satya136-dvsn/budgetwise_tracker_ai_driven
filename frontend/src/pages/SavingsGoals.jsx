@@ -4,28 +4,33 @@ import {
   Box,
   Typography,
   Button,
-  Paper,
   Grid,
-  Card,
-  CardContent,
-  LinearProgress,
-  IconButton,
   Alert,
+  Fade,
+  Fab,
   CircularProgress,
-  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, AddCircle as ContributeIcon } from '@mui/icons-material';
+import { Add as AddIcon, EmojiEvents as TrophyIcon, AttachMoney as MoneyIcon } from '@mui/icons-material';
 import savingsGoalService from '../services/savingsGoalService';
 import SavingsGoalDialog from '../components/SavingsGoalDialog';
-import ContributeDialog from '../components/ContributeDialog';
+import GoalCard from '../components/goals/GoalCard';
 
 const SavingsGoals = () => {
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [contributeDialogOpen, setContributeDialogOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState(null);
+
+  // Contribution dialog
+  const [contributeDialogOpen, setContributeDialogOpen] = useState(false);
+  const [contributeGoal, setContributeGoal] = useState(null);
+  const [contributeAmount, setContributeAmount] = useState('');
 
   useEffect(() => {
     loadGoals();
@@ -38,11 +43,11 @@ const SavingsGoals = () => {
       setGoals(response.data);
       setError('');
     } catch (err) {
-      console.error('Goals load error:', err);
+      console.error('Goal load error:', err);
       if (err.response?.status === 403 || err.response?.status === 401) {
         return;
       }
-      setError('Failed to load savings goals');
+      setError('Failed to load goals');
     } finally {
       setLoading(false);
     }
@@ -58,14 +63,9 @@ const SavingsGoals = () => {
     setDialogOpen(true);
   };
 
-  const handleContribute = (goal) => {
-    setSelectedGoal(goal);
-    setContributeDialogOpen(true);
-  };
-
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this savings goal?')) return;
-    
+    if (!window.confirm('Delete this goal?')) return;
+
     try {
       await savingsGoalService.delete(id);
       loadGoals();
@@ -76,28 +76,45 @@ const SavingsGoals = () => {
 
   const handleDialogClose = (reload) => {
     setDialogOpen(false);
-    setContributeDialogOpen(false);
     setSelectedGoal(null);
     if (reload) loadGoals();
   };
 
-  const calculateProgress = (current, target) => {
-    return Math.min((current / target) * 100, 100);
+  const handleContribute = (goal) => {
+    setContributeGoal(goal);
+    setContributeAmount('');
+    setContributeDialogOpen(true);
   };
+
+  const handleContributeSubmit = async () => {
+    if (!contributeAmount || parseFloat(contributeAmount) <= 0) {
+      setError('Please enter a valid contribution amount');
+      return;
+    }
+
+    try {
+      await savingsGoalService.contribute(contributeGoal.id, parseFloat(contributeAmount));
+      setContributeDialogOpen(false);
+      setContributeGoal(null);
+      setContributeAmount('');
+      loadGoals();
+    } catch (err) {
+      setError('Failed to add contribution');
+    }
+  };
+
+  // Calculate summary stats
+  const totalGoalAmount = goals.reduce((sum, g) => sum + (g.targetAmount || 0), 0);
+  const totalSaved = goals.reduce((sum, g) => sum + (g.currentAmount || 0), 0);
+  const completedGoals = goals.filter((g) => (g.currentAmount / g.targetAmount) * 100 >= 100).length;
+  const activeGoals = goals.filter((g) => (g.currentAmount / g.targetAmount) * 100 < 100).length;
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'INR',
+      maximumFractionDigits: 0,
     }).format(amount);
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
   };
 
   if (loading) {
@@ -109,105 +126,189 @@ const SavingsGoals = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4">Savings Goals</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleAdd}>
-          Add Goal
-        </Button>
-      </Box>
+    <Container maxWidth="xl" sx={{ pb: 4 }}>
+      {/* Page Header */}
+      <Fade in timeout={300}>
+        <Box>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+            <Box>
+              <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, mb: 0.5 }}>
+                Savings Goals
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Track your progress towards your financial dreams
+              </Typography>
+            </Box>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleAdd}
+              size="large"
+            >
+              Create Goal
+            </Button>
+          </Box>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
-          {error}
-        </Alert>
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError('')}>
+              {error}
+            </Alert>
+          )}
+
+          {/* Summary Stats */}
+          {goals.length > 0 && (
+            <Grid container spacing={2} sx={{ mb: 4 }}>
+              <Grid item xs={12} sm={6} md={3}>
+                <Box p={2} bgcolor="background.paper" borderRadius={2} textAlign="center">
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    Total Goal Amount
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
+                    {formatCurrency(totalGoalAmount)}
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Box p={2} bgcolor="background.paper" borderRadius={2} textAlign="center">
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    Total Saved
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 700, color: 'success.main' }}>
+                    {formatCurrency(totalSaved)}
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Box p={2} bgcolor="background.paper" borderRadius={2} textAlign="center">
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    Active Goals
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                    {activeGoals}
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Box p={2} bgcolor="background.paper" borderRadius={2} textAlign="center">
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    Completed Goals
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 700, color: 'warning.main' }}>
+                    🏆 {completedGoals}
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+          )}
+
+          {/* Goal Cards */}
+          {goals.length === 0 ? (
+            <Fade in timeout={500}>
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                minHeight="40vh"
+                textAlign="center"
+                p={4}
+              >
+                <TrophyIcon sx={{ fontSize: 80, color: 'text.disabled', mb: 2 }} />
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
+                  No Savings Goals Yet
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: 500 }}>
+                  Set your financial goals and watch your dreams come true. Define targets,
+                  track progress, and celebrate milestones along the way!
+                </Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={handleAdd}
+                  size="large"
+                >
+                  Create Your First Goal
+                </Button>
+              </Box>
+            </Fade>
+          ) : (
+            <Grid container spacing={3}>
+              {goals.map((goal, index) => (
+                <Grid item xs={12} sm={6} md={4} key={goal.id}>
+                  <Fade in timeout={300 + index * 100}>
+                    <Box>
+                      <GoalCard
+                        goal={goal}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        onContribute={handleContribute}
+                      />
+                    </Box>
+                  </Fade>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </Box>
+      </Fade>
+
+      {/* Floating Action Button */}
+      {goals.length > 0 && (
+        <Fab
+          color="primary"
+          aria-label="add goal"
+          onClick={handleAdd}
+          sx={{
+            position: 'fixed',
+            bottom: 32,
+            right: 32,
+          }}
+        >
+          <AddIcon />
+        </Fab>
       )}
 
-      <Grid container spacing={3}>
-        {goals.length === 0 ? (
-          <Grid item xs={12}>
-            <Paper sx={{ p: 3, textAlign: 'center' }}>
-              <Typography color="text.secondary">
-                No savings goals yet. Click "Add Goal" to create one.
-              </Typography>
-            </Paper>
-          </Grid>
-        ) : (
-          goals.map((goal) => {
-            const progress = calculateProgress(goal.currentAmount, goal.targetAmount);
-            const remaining = goal.targetAmount - goal.currentAmount;
-            const isCompleted = goal.currentAmount >= goal.targetAmount;
-            
-            return (
-              <Grid item xs={12} md={6} key={goal.id}>
-                <Card>
-                  <CardContent>
-                    <Box display="flex" justifyContent="space-between" alignItems="start" mb={2}>
-                      <Box>
-                        <Typography variant="h6">{goal.name}</Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Target: {formatDate(goal.targetDate)}
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <IconButton size="small" onClick={() => handleContribute(goal)} disabled={isCompleted}>
-                          <ContributeIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton size="small" onClick={() => handleEdit(goal)}>
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton size="small" onClick={() => handleDelete(goal.id)}>
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    </Box>
-
-                    <Box mb={2}>
-                      <Box display="flex" justifyContent="space-between" mb={1}>
-                        <Typography variant="body2">
-                          Saved: {formatCurrency(goal.currentAmount)}
-                        </Typography>
-                        <Typography variant="body2">
-                          Target: {formatCurrency(goal.targetAmount)}
-                        </Typography>
-                      </Box>
-                      <LinearProgress
-                        variant="determinate"
-                        value={progress}
-                        color={isCompleted ? 'success' : 'primary'}
-                        sx={{ height: 8, borderRadius: 4 }}
-                      />
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                        {isCompleted ? (
-                          <>Goal Achieved! 🎉</>
-                        ) : (
-                          <>Remaining: {formatCurrency(remaining)}</>
-                        )}
-                      </Typography>
-                    </Box>
-
-                    {isCompleted && (
-                      <Chip label="Completed" color="success" size="small" />
-                    )}
-                  </CardContent>
-                </Card>
-              </Grid>
-            );
-          })
-        )}
-      </Grid>
-
+      {/* Goal Dialog */}
       <SavingsGoalDialog
         open={dialogOpen}
         goal={selectedGoal}
         onClose={handleDialogClose}
       />
-      
-      <ContributeDialog
-        open={contributeDialogOpen}
-        goal={selectedGoal}
-        onClose={handleDialogClose}
-      />
+
+      {/* Contribution Dialog */}
+      <Dialog open={contributeDialogOpen} onClose={() => setContributeDialogOpen(false)}>
+        <DialogTitle>
+          <Box display="flex" alignItems="center" gap={1}>
+            <MoneyIcon color="primary" />
+            Add Contribution
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Adding to: <strong>{contributeGoal?.name}</strong>
+          </Typography>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Contribution Amount"
+            type="number"
+            fullWidth
+            variant="outlined"
+            value={contributeAmount}
+            onChange={(e) => setContributeAmount(e.target.value)}
+            InputProps={{
+              startAdornment: <Typography color="text.secondary" sx={{ mr: 1 }}>₹</Typography>,
+            }}
+            helperText={`Current: ${formatCurrency(contributeGoal?.currentAmount || 0)} / Target: ${formatCurrency(contributeGoal?.targetAmount || 0)}`}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setContributeDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleContributeSubmit} variant="contained">
+            Add Contribution
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

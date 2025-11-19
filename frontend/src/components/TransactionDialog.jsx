@@ -44,7 +44,7 @@ const TransactionDialog = ({ open, transaction, onClose }) => {
           amount: Math.abs(transaction.amount),
           type: transaction.type,
           categoryId: transaction.categoryId || '',
-          date: transaction.date.split('T')[0],
+          date: transaction.transactionDate || new Date().toISOString().split('T')[0],
         });
       } else {
         setFormData({
@@ -84,9 +84,11 @@ const TransactionDialog = ({ open, transaction, onClose }) => {
 
     try {
       const data = {
-        ...formData,
+        description: formData.description,
         amount: parseFloat(formData.amount),
+        type: formData.type,
         categoryId: formData.categoryId || null,
+        transactionDate: formData.date,
       };
 
       if (transaction) {

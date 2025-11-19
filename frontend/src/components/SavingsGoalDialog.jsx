@@ -15,7 +15,7 @@ const SavingsGoalDialog = ({ open, goal, onClose }) => {
   const [formData, setFormData] = useState({
     name: '',
     targetAmount: '',
-    targetDate: '',
+    deadline: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,13 +26,13 @@ const SavingsGoalDialog = ({ open, goal, onClose }) => {
         setFormData({
           name: goal.name,
           targetAmount: goal.targetAmount,
-          targetDate: goal.targetDate.split('T')[0],
+          deadline: goal.deadline ? goal.deadline.split('T')[0] : '',
         });
       } else {
         setFormData({
           name: '',
           targetAmount: '',
-          targetDate: '',
+          deadline: '',
         });
       }
       setError('');
@@ -50,8 +50,9 @@ const SavingsGoalDialog = ({ open, goal, onClose }) => {
 
     try {
       const data = {
-        ...formData,
+        name: formData.name,
         targetAmount: parseFloat(formData.targetAmount),
+        deadline: formData.deadline || null,
       };
 
       if (goal) {
@@ -105,9 +106,9 @@ const SavingsGoalDialog = ({ open, goal, onClose }) => {
               <TextField
                 fullWidth
                 label="Target Date"
-                name="targetDate"
+                name="deadline"
                 type="date"
-                value={formData.targetDate}
+                value={formData.deadline}
                 onChange={handleChange}
                 required
                 InputLabelProps={{ shrink: true }}

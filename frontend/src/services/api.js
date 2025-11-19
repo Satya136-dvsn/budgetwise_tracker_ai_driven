@@ -25,16 +25,25 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error('API Error:', error.response?.status, error.response?.data);
+    const status = error.response?.status;
+    const url = error.config?.url || '';
+
+    console.error('API Error:', status, error.response?.data);
+    console.log('Request URL:', url);
     console.log('Token in localStorage:', localStorage.getItem('token')?.substring(0, 50));
-    
-    if (error.response?.status === 401) {
-      console.warn('401 Unauthorized - redirecting to login');
+
+    const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/register');
+    const isAuthError = status === 401 || status === 403;
+
+    // For general auth errors (expired/invalid session), clear auth and redirect to login.
+    // For login/register errors, let the calling page handle the error and show a message.
+    if (isAuthError && !isAuthEndpoint) {
+      console.warn(`${status} auth error - redirecting to login`);
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
-    // Don't auto-redirect on 403 for now - let's see the error
+
     return Promise.reject(error);
   }
 );

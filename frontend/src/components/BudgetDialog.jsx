@@ -16,8 +16,11 @@ import categoryService from '../services/categoryService';
 const BudgetDialog = ({ open, budget, onClose }) => {
   const [formData, setFormData] = useState({
     categoryId: '',
-    limitAmount: '',
+    amount: '',
     period: 'MONTHLY',
+    startDate: '',
+    endDate: '',
+    alertThreshold: '80',
   });
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState('');
@@ -29,14 +32,20 @@ const BudgetDialog = ({ open, budget, onClose }) => {
       if (budget) {
         setFormData({
           categoryId: budget.categoryId || '',
-          limitAmount: budget.limitAmount,
+          amount: budget.amount ?? '',
           period: budget.period,
+          startDate: budget.startDate ?? '',
+          endDate: budget.endDate ?? '',
+          alertThreshold: budget.alertThreshold ?? '80',
         });
       } else {
         setFormData({
           categoryId: '',
-          limitAmount: '',
+          amount: '',
           period: 'MONTHLY',
+          startDate: '',
+          endDate: '',
+          alertThreshold: '80',
         });
       }
       setError('');
@@ -49,6 +58,11 @@ const BudgetDialog = ({ open, budget, onClose }) => {
       setCategories(response.data.filter(c => c.type === 'EXPENSE'));
     } catch (err) {
       console.error('Failed to load categories:', err);
+      if (err.response?.status === 403 || err.response?.status === 401) {
+        setError('Session expired. Please login again.');
+      } else {
+        setError('Failed to load categories');
+      }
     }
   };
 
@@ -63,9 +77,14 @@ const BudgetDialog = ({ open, budget, onClose }) => {
 
     try {
       const data = {
-        ...formData,
-        limitAmount: parseFloat(formData.limitAmount),
         categoryId: formData.categoryId || null,
+        amount: formData.amount ? parseFloat(formData.amount) : null,
+        period: formData.period,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        alertThreshold: formData.alertThreshold
+          ? parseFloat(formData.alertThreshold)
+          : null,
       };
 
       if (budget) {
@@ -100,6 +119,19 @@ const BudgetDialog = ({ open, budget, onClose }) => {
                 name="categoryId"
                 value={formData.categoryId}
                 onChange={handleChange}
+                InputLabelProps={{ shrink: true }}
+                SelectProps={{
+                  displayEmpty: true,
+                  renderValue: (selected) => {
+                    if (!selected) {
+                      return 'All Categories';
+                    }
+                    const cat = categories.find(
+                      (c) => String(c.id) === String(selected)
+                    );
+                    return cat ? `${cat.icon} ${cat.name}` : 'All Categories';
+                  },
+                }}
               >
                 <MenuItem value="">All Categories</MenuItem>
                 {categories.map((cat) => (
@@ -113,9 +145,9 @@ const BudgetDialog = ({ open, budget, onClose }) => {
               <TextField
                 fullWidth
                 label="Limit Amount"
-                name="limitAmount"
+                name="amount"
                 type="number"
-                value={formData.limitAmount}
+                value={formData.amount}
                 onChange={handleChange}
                 required
                 inputProps={{ min: 0, step: 0.01 }}
@@ -136,6 +168,41 @@ const BudgetDialog = ({ open, budget, onClose }) => {
                 <MenuItem value="MONTHLY">Monthly</MenuItem>
                 <MenuItem value="YEARLY">Yearly</MenuItem>
               </TextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Start Date"
+                name="startDate"
+                type="date"
+                value={formData.startDate}
+                onChange={handleChange}
+                required
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="End Date"
+                name="endDate"
+                type="date"
+                value={formData.endDate}
+                onChange={handleChange}
+                required
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Alert Threshold (%)"
+                name="alertThreshold"
+                type="number"
+                value={formData.alertThreshold}
+                onChange={handleChange}
+                inputProps={{ min: 0, max: 100, step: 1 }}
+              />
             </Grid>
           </Grid>
         </DialogContent>

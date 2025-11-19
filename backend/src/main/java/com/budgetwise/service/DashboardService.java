@@ -27,7 +27,6 @@ public class DashboardService {
     private final BudgetRepository budgetRepository;
     private final SavingsGoalRepository savingsGoalRepository;
 
-    @Cacheable(value = "dashboardSummary", key = "#userId")
     public DashboardSummaryDto getDashboardSummary(Long userId) {
         LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
         LocalDate endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
@@ -67,7 +66,6 @@ public class DashboardService {
                 .build();
     }
 
-    @Cacheable(value = "monthlyTrends", key = "#userId + '_' + #months")
     public List<MonthlyTrendDto> getMonthlyTrends(Long userId, Integer months) {
         if (months == null || months <= 0) {
             months = 6;
@@ -106,7 +104,6 @@ public class DashboardService {
         return trends;
     }
 
-    @Cacheable(value = "categoryBreakdown", key = "#userId")
     public List<CategoryBreakdownDto> getCategoryBreakdown(Long userId) {
         LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
         LocalDate endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
