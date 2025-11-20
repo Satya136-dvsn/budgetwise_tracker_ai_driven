@@ -16,6 +16,12 @@ public class UserProfile {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
+    @Column(name = "first_name", length = 50)
+    private String firstName;
+
+    @Column(name = "last_name", length = 50)
+    private String lastName;
+
     @Column(name = "monthly_income", precision = 15, scale = 2)
     private BigDecimal monthlyIncome;
 
@@ -83,6 +89,22 @@ public class UserProfile {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public BigDecimal getMonthlyIncome() {

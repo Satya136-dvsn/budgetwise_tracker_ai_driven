@@ -7,6 +7,12 @@ public class ProfileDto {
 
     private Long id;
 
+    @Size(max = 50, message = "First name must not exceed 50 characters")
+    private String firstName;
+
+    @Size(max = 50, message = "Last name must not exceed 50 characters")
+    private String lastName;
+
     @DecimalMin(value = "0.0", inclusive = false, message = "Monthly income must be positive")
     private BigDecimal monthlyIncome;
 
@@ -43,6 +49,22 @@ public class ProfileDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public BigDecimal getMonthlyIncome() {

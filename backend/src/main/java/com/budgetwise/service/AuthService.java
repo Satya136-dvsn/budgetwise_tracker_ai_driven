@@ -23,10 +23,10 @@ public class AuthService {
     private final ProfileService profileService;
 
     public AuthService(UserRepository userRepository,
-                      PasswordEncoder passwordEncoder,
-                      AuthenticationManager authenticationManager,
-                      JwtTokenProvider tokenProvider,
-                      ProfileService profileService) {
+            PasswordEncoder passwordEncoder,
+            AuthenticationManager authenticationManager,
+            JwtTokenProvider tokenProvider,
+            ProfileService profileService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
@@ -41,35 +41,50 @@ public class AuthService {
             throw new RuntimeException("Email already in use");
         }
 
-        // Check if username already exists
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already in use");
+        // Generate username if not provided
+        String username = request.getUsername();
+        if (username == null || username.trim().isEmpty()) {
+            username = request.getEmail().split("@")[0];
+            // Ensure uniqueness
+            if (userRepository.existsByUsername(username)) {
+                username = username + "_" + System.currentTimeMillis() % 10000;
+            }
+        } else {
+            // Check if provided username exists
+            if (userRepository.existsByUsername(username)) {
+                throw new RuntimeException("Username already in use");
+            }
         }
 
         // Create new user
         User user = new User();
-        user.setUsername(request.getUsername());
+        user.setUsername(username);
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        
+
         // Set role from request or default to USER
         if (request.getRole() != null && request.getRole().equalsIgnoreCase("ADMIN")) {
             user.setRole(User.Role.ADMIN);
         } else {
             user.setRole(User.Role.USER);
         }
-        
+
         user.setIsActive(true);
 
         User savedUser = userRepository.save(user);
 
         // Initialize user profile
-        profileService.initializeProfile(savedUser);
+        ProfileDto profileDto = new ProfileDto();
+        profileDto.setFirstName(request.getFirstName());
+        profileDto.setLastName(request.getLastName());
+        profileDto.setMonthlyIncome(request.getMonthlyIncome());
+        profileDto.setSavingsTarget(request.getSavingsTarget());
+
+        profileService.initializeProfile(savedUser, profileDto);
 
         // Authenticate user
         Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -78,17 +93,15 @@ public class AuthService {
         String refreshToken = tokenProvider.generateRefreshToken(authentication);
 
         return new AuthResponse(
-            accessToken,
-            refreshToken,
-            tokenProvider.getJwtExpirationMs(),
-            UserDto.fromEntity(savedUser)
-        );
+                accessToken,
+                refreshToken,
+                tokenProvider.getJwtExpirationMs(),
+                UserDto.fromEntity(savedUser));
     }
 
     public AuthResponse login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -100,11 +113,10 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return new AuthResponse(
-            accessToken,
-            refreshToken,
-            tokenProvider.getJwtExpirationMs(),
-            UserDto.fromEntity(user)
-        );
+                accessToken,
+                refreshToken,
+                tokenProvider.getJwtExpirationMs(),
+                UserDto.fromEntity(user));
     }
 
     public AuthResponse refreshToken(RefreshTokenRequest request) {
@@ -120,17 +132,15 @@ public class AuthService {
 
         UserPrincipal userPrincipal = UserPrincipal.create(user);
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-            userPrincipal, null, userPrincipal.getAuthorities()
-        );
+                userPrincipal, null, userPrincipal.getAuthorities());
 
         String newAccessToken = tokenProvider.generateAccessToken(authentication);
         String newRefreshToken = tokenProvider.generateRefreshToken(authentication);
 
         return new AuthResponse(
-            newAccessToken,
-            newRefreshToken,
-            tokenProvider.getJwtExpirationMs(),
-            UserDto.fromEntity(user)
-        );
+                newAccessToken,
+                newRefreshToken,
+                tokenProvider.getJwtExpirationMs(),
+                UserDto.fromEntity(user));
     }
 }

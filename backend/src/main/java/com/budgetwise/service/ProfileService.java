@@ -30,7 +30,7 @@ public class ProfileService {
                     // Auto-create profile if it doesn't exist
                     User user = userRepository.findById(userId)
                             .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-                    
+
                     UserProfile newProfile = new UserProfile(user);
                     newProfile.setCurrency("INR");
                     newProfile.setLanguage("en");
@@ -39,10 +39,10 @@ public class ProfileService {
                     newProfile.setDateFormat("dd/MM/yyyy");
                     newProfile.setNotificationEmail(true);
                     newProfile.setNotificationPush(true);
-                    
+
                     return profileRepository.save(newProfile);
                 });
-        
+
         return mapToDto(profile);
     }
 
@@ -60,7 +60,7 @@ public class ProfileService {
 
         UserProfile profile = new UserProfile(user);
         updateProfileFromDto(profile, profileDto);
-        
+
         UserProfile savedProfile = profileRepository.save(profile);
         return mapToDto(savedProfile);
     }
@@ -74,7 +74,7 @@ public class ProfileService {
                 .orElseThrow(() -> new RuntimeException("Profile not found for user ID: " + userId));
 
         updateProfileFromDto(profile, profileDto);
-        
+
         UserProfile updatedProfile = profileRepository.save(profile);
         return mapToDto(updatedProfile);
     }
@@ -115,7 +115,7 @@ public class ProfileService {
      * Initialize profile on user registration
      */
     @Transactional
-    public void initializeProfile(User user) {
+    public void initializeProfile(User user, ProfileDto initialData) {
         if (!profileRepository.existsByUserId(user.getId())) {
             UserProfile profile = new UserProfile(user);
             // Set default values for Indian users
@@ -126,7 +126,11 @@ public class ProfileService {
             profile.setDateFormat("dd/MM/yyyy");
             profile.setNotificationEmail(true);
             profile.setNotificationPush(true);
-            
+
+            if (initialData != null) {
+                updateProfileFromDto(profile, initialData);
+            }
+
             profileRepository.save(profile);
         }
     }
@@ -135,6 +139,12 @@ public class ProfileService {
      * Helper method to update profile entity from DTO
      */
     private void updateProfileFromDto(UserProfile profile, ProfileDto dto) {
+        if (dto.getFirstName() != null) {
+            profile.setFirstName(dto.getFirstName());
+        }
+        if (dto.getLastName() != null) {
+            profile.setLastName(dto.getLastName());
+        }
         if (dto.getMonthlyIncome() != null) {
             profile.setMonthlyIncome(dto.getMonthlyIncome());
         }
@@ -170,6 +180,8 @@ public class ProfileService {
     private ProfileDto mapToDto(UserProfile profile) {
         ProfileDto dto = new ProfileDto();
         dto.setId(profile.getId());
+        dto.setFirstName(profile.getFirstName());
+        dto.setLastName(profile.getLastName());
         dto.setMonthlyIncome(profile.getMonthlyIncome());
         dto.setSavingsTarget(profile.getSavingsTarget());
         dto.setCurrency(profile.getCurrency());

@@ -29,12 +29,16 @@ import {
   Category as CategoryIcon,
   AccountBalance as BudgetIcon,
   Savings as SavingsIcon,
-  Analytics as AnalyticsIcon,
-  Assessment as ReportsIcon,
+  Assessment as AnalyticsIcon,
+  Description as ReportsIcon,
   Forum as CommunityIcon,
   Settings as SettingsIcon,
   Notifications as NotificationsIcon,
   Logout as LogoutIcon,
+  AccountBalanceWallet as BankingIcon,
+  Receipt as BillsIcon,
+  TrendingUp as InvestmentsIcon,
+  SmartToy as AIIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
@@ -47,6 +51,13 @@ const menuItems = [
   { text: 'Categories', icon: <CategoryIcon />, path: '/categories' },
   { text: 'Budgets', icon: <BudgetIcon />, path: '/budgets' },
   { text: 'Savings Goals', icon: <SavingsIcon />, path: '/goals' },
+  { text: 'Banking', icon: <BankingIcon />, path: '/banking' },
+  { text: 'Bills', icon: <BillsIcon />, path: '/bills' },
+  { text: 'Investments', icon: <InvestmentsIcon />, path: '/investments' },
+  { text: 'AI Assistant', icon: <AIIcon />, path: '/ai-chat' },
+  { text: 'Analytics', icon: <AnalyticsIcon />, path: '/analytics' },
+  { text: 'Reports', icon: <ReportsIcon />, path: '/reports' },
+  { text: 'Community', icon: <CommunityIcon />, path: '/community' },
 ];
 
 const DashboardLayout = () => {
@@ -58,7 +69,8 @@ const DashboardLayout = () => {
   });
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-  
+  const [userAvatar, setUserAvatar] = useState('');
+
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -67,6 +79,25 @@ const DashboardLayout = () => {
   useEffect(() => {
     localStorage.setItem('sidebarOpen', JSON.stringify(sidebarOpen));
   }, [sidebarOpen]);
+
+  // Load user avatar and listen for changes
+  useEffect(() => {
+    const savedAvatar = localStorage.getItem('userAvatar');
+    if (savedAvatar) {
+      setUserAvatar(savedAvatar);
+    }
+
+    // Listen for avatar changes
+    const handleAvatarChange = (event) => {
+      setUserAvatar(event.detail);
+    };
+
+    window.addEventListener('avatarChanged', handleAvatarChange);
+
+    return () => {
+      window.removeEventListener('avatarChanged', handleAvatarChange);
+    };
+  }, []);
 
   const handleDrawerToggle = () => {
     if (isMobile) {
@@ -267,6 +298,7 @@ const DashboardLayout = () => {
           <Tooltip title="Account">
             <IconButton onClick={handleProfileMenuOpen} sx={{ p: 0 }}>
               <Avatar
+                src={userAvatar}
                 sx={{
                   width: 36,
                   height: 36,
@@ -274,7 +306,7 @@ const DashboardLayout = () => {
                   fontSize: '1rem',
                 }}
               >
-                {user?.username?.[0]?.toUpperCase() || 'U'}
+                {!userAvatar && (user?.username?.[0]?.toUpperCase() || 'U')}
               </Avatar>
             </IconButton>
           </Tooltip>

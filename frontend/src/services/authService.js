@@ -1,8 +1,8 @@
-import api from './api';
+import apiClient from './axiosConfig';
 
 const authService = {
   login: async (email, password) => {
-    const response = await api.post('/auth/login', { email, password });
+    const response = await apiClient.post('/auth/login', { email, password });
     const { accessToken, refreshToken, user } = response.data;
 
     if (accessToken) {
@@ -18,7 +18,7 @@ const authService = {
   },
 
   register: async (userData) => {
-    const response = await api.post('/auth/register', userData);
+    const response = await apiClient.post('/auth/register', userData);
     const { accessToken, refreshToken, user } = response.data;
 
     if (accessToken) {
@@ -35,6 +35,7 @@ const authService = {
 
   logout: () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
   },
 

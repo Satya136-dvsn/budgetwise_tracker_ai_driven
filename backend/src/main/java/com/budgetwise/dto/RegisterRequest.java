@@ -7,8 +7,6 @@ import jakarta.validation.constraints.Size;
 
 public class RegisterRequest {
 
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
     private String username;
 
     @NotBlank(message = "Email is required")
@@ -17,15 +15,18 @@ public class RegisterRequest {
 
     @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters")
-    @Pattern(
-        regexp = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@#$%^&+=]).*$",
-        message = "Password must contain at least one letter, one number, and one special character"
-    )
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@#$%^&+=]).*$", message = "Password must contain at least one letter, one number, and one special character")
     private String password;
+
+    private String firstName;
+    private String lastName;
+    private java.math.BigDecimal monthlyIncome;
+    private java.math.BigDecimal savingsTarget;
 
     private String role; // Optional: USER or ADMIN
 
-    public RegisterRequest() {}
+    public RegisterRequest() {
+    }
 
     public RegisterRequest(String username, String email, String password) {
         this.username = username;
@@ -55,6 +56,38 @@ public class RegisterRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public java.math.BigDecimal getMonthlyIncome() {
+        return monthlyIncome;
+    }
+
+    public void setMonthlyIncome(java.math.BigDecimal monthlyIncome) {
+        this.monthlyIncome = monthlyIncome;
+    }
+
+    public java.math.BigDecimal getSavingsTarget() {
+        return savingsTarget;
+    }
+
+    public void setSavingsTarget(java.math.BigDecimal savingsTarget) {
+        this.savingsTarget = savingsTarget;
     }
 
     public String getRole() {

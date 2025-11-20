@@ -20,19 +20,19 @@ import java.time.temporal.ChronoUnit;
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
-    
+
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
     private final BudgetService budgetService;
     private final WebSocketService webSocketService;
-    
+
     @Transactional
-    @CacheEvict(value = {"dashboardSummary", "monthlyTrends", "categoryBreakdown"}, allEntries = true)
+    @CacheEvict(value = { "dashboardSummary", "monthlyTrends", "categoryBreakdown" }, allEntries = true)
     public TransactionDto createTransaction(TransactionDto dto, Long userId) {
         // Validate category exists
         Category category = categoryRepository.findById(dto.getCategoryId())
-            .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-        
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+
         Transaction transaction = new Transaction();
         transaction.setUserId(userId);
         transaction.setType(dto.getType());
@@ -41,25 +41,25 @@ public class TransactionService {
         transaction.setDescription(dto.getDescription());
         transaction.setTransactionDate(dto.getTransactionDate());
         transaction.setIsAnomaly(false);
-        
+
         Transaction saved = transactionRepository.save(transaction);
-        
+
         // Update budget progress if expense
         if (transaction.getType() == Transaction.TransactionType.EXPENSE) {
             budgetService.updateBudgetProgress(userId, transaction.getCategoryId());
         }
-        
+
         // Send WebSocket notification
         webSocketService.sendDashboardUpdate(userId);
-        
+
         return mapToDto(saved, category.getName());
     }
-    
+
     public Page<TransactionDto> getTransactions(Long userId, Pageable pageable) {
         return transactionRepository.findByUserId(userId, pageable)
-            .map(this::mapToDto);
+                .map(this::mapToDto);
     }
-    
+
     public Page<TransactionDto> getTransactionsByFilters(
             Long userId,
             Transaction.TransactionType type,
@@ -69,56 +69,55 @@ public class TransactionService {
             BigDecimal minAmount,
             BigDecimal maxAmount,
             Pageable pageable) {
-        
+
         return transactionRepository.findByFilters(
-            userId, type, categoryId, startDate, endDate, minAmount, maxAmount, pageable
-        ).map(this::mapToDto);
+                userId, type, categoryId, startDate, endDate, minAmount, maxAmount, pageable).map(this::mapToDto);
     }
-    
+
     public TransactionDto getTransactionById(Long id, Long userId) {
         Transaction transaction = transactionRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
-        
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
+
         if (!transaction.getUserId().equals(userId)) {
             throw new ResourceNotFoundException("Transaction not found");
         }
-        
+
         return mapToDto(transaction);
     }
-    
+
     @Transactional
-    @CacheEvict(value = {"dashboardSummary", "monthlyTrends", "categoryBreakdown"}, allEntries = true)
+    @CacheEvict(value = { "dashboardSummary", "monthlyTrends", "categoryBreakdown" }, allEntries = true)
     public TransactionDto updateTransaction(Long id, TransactionDto dto, Long userId) {
         Transaction transaction = transactionRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
-        
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
+
         if (!transaction.getUserId().equals(userId)) {
             throw new ResourceNotFoundException("Transaction not found");
         }
-        
+
         // Validate edit within 30 days
         long daysSinceCreation = ChronoUnit.DAYS.between(transaction.getCreatedAt().toLocalDate(), LocalDate.now());
         if (daysSinceCreation > 30) {
             throw new IllegalArgumentException("Cannot edit transactions older than 30 days");
         }
-        
+
         // Validate category exists
         if (dto.getCategoryId() != null) {
             categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         }
-        
+
         Transaction.TransactionType oldType = transaction.getType();
         Long oldCategoryId = transaction.getCategoryId();
-        
+
         transaction.setType(dto.getType());
         transaction.setAmount(dto.getAmount());
         transaction.setCategoryId(dto.getCategoryId());
         transaction.setDescription(dto.getDescription());
         transaction.setTransactionDate(dto.getTransactionDate());
-        
+
         Transaction updated = transactionRepository.save(transaction);
-        
+
         // Update budget progress
         if (oldType == Transaction.TransactionType.EXPENSE) {
             budgetService.updateBudgetProgress(userId, oldCategoryId);
@@ -126,41 +125,41 @@ public class TransactionService {
         if (updated.getType() == Transaction.TransactionType.EXPENSE) {
             budgetService.updateBudgetProgress(userId, updated.getCategoryId());
         }
-        
+
         return mapToDto(updated);
     }
-    
+
     @Transactional
-    @CacheEvict(value = {"dashboardSummary", "monthlyTrends", "categoryBreakdown"}, allEntries = true)
+    @CacheEvict(value = { "dashboardSummary", "monthlyTrends", "categoryBreakdown" }, allEntries = true)
     public void deleteTransaction(Long id, Long userId) {
         Transaction transaction = transactionRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
-        
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
+
         if (!transaction.getUserId().equals(userId)) {
             throw new ResourceNotFoundException("Transaction not found");
         }
-        
+
         Transaction.TransactionType type = transaction.getType();
         Long categoryId = transaction.getCategoryId();
-        
+
         transactionRepository.delete(transaction);
-        
+
         // Update budget progress
         if (type == Transaction.TransactionType.EXPENSE) {
             budgetService.updateBudgetProgress(userId, categoryId);
         }
     }
-    
+
     private TransactionDto mapToDto(Transaction transaction) {
         String categoryName = null;
         if (transaction.getCategoryId() != null) {
             categoryName = categoryRepository.findById(transaction.getCategoryId())
-                .map(Category::getName)
-                .orElse(null);
+                    .map(Category::getName)
+                    .orElse(null);
         }
         return mapToDto(transaction, categoryName);
     }
-    
+
     private TransactionDto mapToDto(Transaction transaction, String categoryName) {
         TransactionDto dto = new TransactionDto();
         dto.setId(transaction.getId());

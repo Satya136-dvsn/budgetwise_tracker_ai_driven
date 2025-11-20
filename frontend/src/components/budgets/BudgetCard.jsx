@@ -71,7 +71,7 @@ const BudgetCard = ({ budget, onEdit, onDelete }) => {
                 <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
                     <Box>
                         <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
-                            {category?.name || 'Uncategorized'}
+                            {budget.categoryName || 'Uncategorized'}
                         </Typography>
                         <Chip
                             label={`${period} Budget`}

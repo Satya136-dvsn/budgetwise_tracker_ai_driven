@@ -16,31 +16,31 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransactionDto {
-    
+
     private Long id;
-    
+
     @NotNull(message = "Transaction type is required")
     private Transaction.TransactionType type;
-    
+
     @NotNull(message = "Amount is required")
     @DecimalMin(value = "0.01", message = "Amount must be greater than 0")
     private BigDecimal amount;
-    
+
     @NotNull(message = "Category is required")
     private Long categoryId;
-    
+
     private String categoryName;
-    
+
     @Size(max = 500, message = "Description cannot exceed 500 characters")
     private String description;
-    
+
     @NotNull(message = "Transaction date is required")
     @PastOrPresent(message = "Transaction date cannot be in the future")
     private LocalDate transactionDate;
-    
+
     private Boolean isAnomaly;
-    
+
     private LocalDateTime createdAt;
-    
+
     private LocalDateTime updatedAt;
 }

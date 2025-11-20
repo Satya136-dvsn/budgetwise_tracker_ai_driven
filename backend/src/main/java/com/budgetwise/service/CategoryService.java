@@ -6,6 +6,8 @@ import com.budgetwise.entity.User;
 import com.budgetwise.repository.CategoryRepository;
 import com.budgetwise.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +32,7 @@ public class CategoryService {
     @Transactional
     public void seedSystemCategories() {
         List<Category> existingSystemCategories = categoryRepository.findByIsSystemTrue();
-        
+
         if (existingSystemCategories.isEmpty()) {
             // Expense categories
             createSystemCategory("Food & Dining", Category.CategoryType.EXPENSE, "🍽️", "#FF6B6B");
@@ -48,7 +50,7 @@ public class CategoryService {
             createSystemCategory("Gifts & Donations", Category.CategoryType.EXPENSE, "🎁", "#E17055");
             createSystemCategory("Bills & EMI", Category.CategoryType.EXPENSE, "📄", "#B2BEC3");
             createSystemCategory("Other Expenses", Category.CategoryType.EXPENSE, "📦", "#636E72");
-            
+
             // Income categories
             createSystemCategory("Salary", Category.CategoryType.INCOME, "💰", "#00B894");
             createSystemCategory("Business Income", Category.CategoryType.INCOME, "💼", "#0984E3");
@@ -58,7 +60,7 @@ public class CategoryService {
             createSystemCategory("Gifts Received", Category.CategoryType.INCOME, "🎁", "#FD79A8");
             createSystemCategory("Refunds", Category.CategoryType.INCOME, "↩️", "#74B9FF");
             createSystemCategory("Other Income", Category.CategoryType.INCOME, "💵", "#55EFC4");
-            
+
             System.out.println("✅ System categories seeded successfully!");
         }
     }
@@ -74,6 +76,7 @@ public class CategoryService {
      * Get all categories for a user (system + custom)
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "categories", key = "#userId")
     public List<CategoryDto> getAllCategoriesForUser(Long userId) {
         List<Category> categories = categoryRepository.findAllByUserIdIncludingSystem(userId);
         return categories.stream()
@@ -85,6 +88,7 @@ public class CategoryService {
      * Get only user's custom categories
      */
     @Transactional(readOnly = true)
+    @Cacheable(value = "custom_categories", key = "#userId")
     public List<CategoryDto> getUserCustomCategories(Long userId) {
         List<Category> categories = categoryRepository.findByUserId(userId);
         return categories.stream()
@@ -99,12 +103,12 @@ public class CategoryService {
     public CategoryDto getCategoryById(Long id, Long userId) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with ID: " + id));
-        
+
         // Check if user has access to this category
         if (!category.getIsSystem() && !category.getUser().getId().equals(userId)) {
             throw new RuntimeException("Access denied to this category");
         }
-        
+
         return CategoryDto.fromEntity(category);
     }
 
@@ -112,6 +116,7 @@ public class CategoryService {
      * Create a custom category for a user
      */
     @Transactional
+    @CacheEvict(value = { "categories", "custom_categories" }, key = "#userId", allEntries = true)
     public CategoryDto createCategory(CategoryDto categoryDto, Long userId) {
         // Check if category name already exists for this user
         if (categoryRepository.existsByNameAndTypeForUser(categoryDto.getName(), categoryDto.getType(), userId)) {
@@ -137,6 +142,7 @@ public class CategoryService {
      * Update a category (only custom categories can be updated)
      */
     @Transactional
+    @CacheEvict(value = { "categories", "custom_categories" }, key = "#userId", allEntries = true)
     public CategoryDto updateCategory(Long id, CategoryDto categoryDto, Long userId) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with ID: " + id));
@@ -170,6 +176,7 @@ public class CategoryService {
      * Delete a category (only custom categories can be deleted)
      */
     @Transactional
+    @CacheEvict(value = { "categories", "custom_categories" }, key = "#userId", allEntries = true)
     public void deleteCategory(Long id, Long userId) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with ID: " + id));

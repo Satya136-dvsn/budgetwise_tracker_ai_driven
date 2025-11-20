@@ -9,9 +9,20 @@ import {
   MenuItem,
   Grid,
   Alert,
+  CircularProgress,
+  Box,
+  Typography,
+  IconButton,
 } from '@mui/material';
+import {
+  AutoAwesome as AutoAwesomeIcon,
+  CloudUpload as CloudUploadIcon,
+  Close as CloseIcon,
+  InsertDriveFile as FileIcon
+} from '@mui/icons-material';
 import transactionService from '../services/transactionService';
 import categoryService from '../services/categoryService';
+import aiService from '../services/aiService';
 
 const TransactionDialog = ({ open, transaction, onClose }) => {
   const [formData, setFormData] = useState({
@@ -24,6 +35,10 @@ const TransactionDialog = ({ open, transaction, onClose }) => {
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [suggestingCategory, setSuggestingCategory] = useState(false);
+  const [suggestion, setSuggestion] = useState(null);
+  const [receiptFile, setReceiptFile] = useState(null);
+  const [receiptPreview, setReceiptPreview] = useState(null);
 
   useEffect(() => {
     if (open) {
@@ -36,7 +51,7 @@ const TransactionDialog = ({ open, transaction, onClose }) => {
         }, 1500);
         return;
       }
-      
+
       loadCategories();
       if (transaction) {
         setFormData({
@@ -54,6 +69,8 @@ const TransactionDialog = ({ open, transaction, onClose }) => {
           categoryId: '',
           date: new Date().toISOString().split('T')[0],
         });
+        setReceiptFile(null);
+        setReceiptPreview(null);
       }
       setError('');
     }
@@ -75,6 +92,70 @@ const TransactionDialog = ({ open, transaction, onClose }) => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear suggestion when user changes anything
+    if (suggestion) setSuggestion(null);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError('File size should be less than 5MB');
+        return;
+      }
+      setReceiptFile(file);
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setReceiptPreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setReceiptPreview(null);
+      }
+    }
+  };
+
+  const handleRemoveReceipt = () => {
+    setReceiptFile(null);
+    setReceiptPreview(null);
+  };
+
+  const handleSuggestCategory = async () => {
+    if (!formData.description || !formData.amount) {
+      setError('Please enter description and amount first');
+      return;
+    }
+
+    setSuggestingCategory(true);
+    setError('');
+
+    try {
+      const response = await aiService.categorizeTransaction(
+        formData.description,
+        parseFloat(formData.amount)
+      );
+
+      if (response.data && response.data.categoryId) {
+        setSuggestion({
+          categoryId: response.data.categoryId,
+          categoryName: response.data.categoryName || 'Suggested Category',
+          confidence: response.data.confidence
+        });
+      }
+    } catch (err) {
+      console.error('AI categorization error:', err);
+      setError('AI suggestion unavailable. Please select manually.');
+    } finally {
+      setSuggestingCategory(false);
+    }
+  };
+
+  const applySuggestion = () => {
+    if (suggestion) {
+      setFormData({ ...formData, categoryId: suggestion.categoryId });
+      setSuggestion(null);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -90,6 +171,16 @@ const TransactionDialog = ({ open, transaction, onClose }) => {
         categoryId: formData.categoryId || null,
         transactionDate: formData.date,
       };
+
+      // Note: Backend receipt storage is not yet implemented.
+      // We are just handling the UI part for Phase 3.
+      if (receiptFile) {
+        console.log('Receipt file selected:', receiptFile.name);
+        // In a real implementation, we would upload this file here
+        // const formData = new FormData();
+        // formData.append('file', receiptFile);
+        // await transactionService.uploadReceipt(formData);
+      }
 
       if (transaction) {
         await transactionService.update(transaction.id, data);
@@ -171,6 +262,7 @@ const TransactionDialog = ({ open, transaction, onClose }) => {
                 name="categoryId"
                 value={formData.categoryId}
                 onChange={handleChange}
+                helperText={suggestion ? `AI suggests: ${suggestion.categoryName}` : ''}
               >
                 <MenuItem value="">None</MenuItem>
                 {categories.map((cat) => (
@@ -179,6 +271,88 @@ const TransactionDialog = ({ open, transaction, onClose }) => {
                   </MenuItem>
                 ))}
               </TextField>
+            </Grid>
+
+            {/* Receipt Upload UI */}
+            <Grid item xs={12}>
+              <Box
+                sx={{
+                  border: '1px dashed #ccc',
+                  borderRadius: 1,
+                  p: 2,
+                  textAlign: 'center',
+                  bgcolor: 'background.default'
+                }}
+              >
+                {!receiptFile ? (
+                  <>
+                    <input
+                      accept="image/*,.pdf"
+                      style={{ display: 'none' }}
+                      id="receipt-file-upload"
+                      type="file"
+                      onChange={handleFileChange}
+                    />
+                    <label htmlFor="receipt-file-upload">
+                      <Button
+                        variant="outlined"
+                        component="span"
+                        startIcon={<CloudUploadIcon />}
+                        sx={{ mb: 1 }}
+                      >
+                        Upload Receipt
+                      </Button>
+                    </label>
+                    <Typography variant="caption" display="block" color="text.secondary">
+                      Supports JPG, PNG, PDF (Max 5MB)
+                    </Typography>
+                  </>
+                ) : (
+                  <Box display="flex" alignItems="center" justifyContent="space-between">
+                    <Box display="flex" alignItems="center" gap={1}>
+                      {receiptPreview ? (
+                        <Box
+                          component="img"
+                          src={receiptPreview}
+                          alt="Receipt preview"
+                          sx={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 1 }}
+                        />
+                      ) : (
+                        <FileIcon color="action" />
+                      )}
+                      <Typography variant="body2" noWrap sx={{ maxWidth: 200 }}>
+                        {receiptFile.name}
+                      </Typography>
+                    </Box>
+                    <IconButton size="small" onClick={handleRemoveReceipt}>
+                      <CloseIcon />
+                    </IconButton>
+                  </Box>
+                )}
+              </Box>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Button
+                variant="outlined"
+                onClick={handleSuggestCategory}
+                disabled={suggestingCategory || !formData.description || !formData.amount}
+                startIcon={suggestingCategory ? <CircularProgress size={20} /> : <AutoAwesomeIcon />}
+                fullWidth
+              >
+                {suggestingCategory ? 'Getting AI Suggestion...' : 'Suggest Category with AI'}
+              </Button>
+              {suggestion && (
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={applySuggestion}
+                  fullWidth
+                  sx={{ mt: 1 }}
+                >
+                  Apply Suggestion: {suggestion.categoryName}
+                </Button>
+              )}
             </Grid>
           </Grid>
         </DialogContent>

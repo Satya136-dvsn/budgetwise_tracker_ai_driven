@@ -150,19 +150,36 @@ const Dashboard = () => {
                         cy="50%"
                         outerRadius={100}
                         paddingAngle={2}
-                        label={({ categoryName, percent }) => `${categoryName} (${(percent * 100).toFixed(0)}%)`}
-                        labelLine={{ stroke: '#666', strokeWidth: 1 }}
-                        style={{ fontSize: '13px', fontWeight: 600, fill: '#fff', textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
                       >
                         {categoryBreakdown.map((entry, index) => (
-                          <Cell key={entry.categoryId} fill={getCategoryColor(entry.categoryId, index)} stroke="#1a1a1a" strokeWidth={2} />
+                          <Cell
+                            key={entry.categoryId}
+                            fill={getCategoryColor(entry.categoryId, index)}
+                            stroke="#1a1a1a"
+                            strokeWidth={2}
+                          />
                         ))}
                       </Pie>
                       <Tooltip
-                        formatter={(value, name) => [formatCurrency(value), name]}
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '8px', padding: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}
-                        labelStyle={{ color: '#000', fontWeight: 600, fontSize: '14px', marginBottom: '4px' }}
-                        itemStyle={{ color: '#333', fontSize: '13px', padding: '4px 0' }}
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0].payload;
+                            return (
+                              <Box sx={{ bgcolor: 'background.paper', p: 1.5, border: '1px solid', borderColor: 'divider', borderRadius: 1, boxShadow: 3 }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                  {data.categoryName}
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                  {formatCurrency(data.amount)}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: 'primary.main', fontWeight: 500 }}>
+                                  {data.percentage ? `${data.percentage.toFixed(1)}%` : ''} of total
+                                </Typography>
+                              </Box>
+                            );
+                          }
+                          return null;
+                        }}
                       />
                     </PieChart>
                   </ResponsiveContainer>
