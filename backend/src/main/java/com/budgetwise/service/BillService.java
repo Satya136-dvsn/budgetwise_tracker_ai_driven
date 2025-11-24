@@ -11,6 +11,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -95,7 +96,7 @@ public class BillService {
         transaction.setUserId(userId);
         transaction.setType(Transaction.TransactionType.EXPENSE);
         transaction.setAmount(bill.getAmount());
-        transaction.setCategoryId(null); // Could map category name to ID if needed
+        transaction.setCategoryId(8L); // Bills & EMI category
         transaction.setDescription("Bill Payment: " + bill.getName());
         transaction.setTransactionDate(LocalDate.now());
         transaction.setIsAnomaly(false);
@@ -152,6 +153,12 @@ public class BillService {
         if (!overdueBills.isEmpty()) {
             billRepository.saveAll(overdueBills);
         }
+    }
+
+    @Transactional
+    public void syncBillPayment(Long userId, String description, BigDecimal amount, LocalDate transactionDate) {
+        // Placeholder - sync logic can be added later if needed
+        System.out.println("syncBillPayment called for: " + description);
     }
 
     private BillDto mapToDto(Bill bill) {

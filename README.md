@@ -31,9 +31,10 @@ A comprehensive, enterprise-grade budget tracking and financial management appli
 
 - 🔐 **JWT Authentication** - Secure token-based authentication with refresh mechanism
 - 📱 **Responsive Design** - Fully responsive UI working on desktop, tablet, and mobile
-- 📤 **Data Export** - Export financial reports to CSV
+- 📤 **Professional Exports** - Generate beautiful PDF reports with charts and Excel files with native visualizations
 - 🔄 **Automatic Backups** - Database configuration for reliability
 - 📧 **Email Notifications** - (Planned) Budget alerts and reminders
+- ⚡ **Performance** - Optimized with caching and database indexing for sub-second response times
 
 ## 🏗️ Architecture
 
@@ -137,8 +138,10 @@ Open <http://localhost:3000> in your browser
 
 ## 📚 Documentation
 
+- [Internship Report](INTERNSHIP_REPORT.md) - Comprehensive project documentation for academic/professional submission
 - [Walkthrough Guide](bills_investments_walkthrough.md) - Detailed guide on new features
 - [API Documentation](docs/API.md) - (Coming Soon) Swagger/OpenAPI docs
+- [Installation Guide](QUICKSTART.md) - Quick setup instructions
 
 ## 🔧 Configuration
 
@@ -239,6 +242,12 @@ docker-compose up -d
 - `GET /api/bills` - Get recurring bills
 - `GET /api/investments` - Get investment portfolio
 - `GET /api/investments/summary` - Get portfolio performance
+
+### Exports
+
+- `GET /api/export/dashboard?format={pdf|excel}` - Export dashboard report
+- `GET /api/export/analytics?format={pdf|excel}&timeRange={1M|3M|6M|1Y}` - Export analytics report
+- `GET /api/export/transactions?format={csv|pdf|excel}` - Export transactions
 
 ## 🤝 Contributing
 

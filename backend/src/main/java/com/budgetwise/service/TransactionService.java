@@ -25,6 +25,7 @@ public class TransactionService {
     private final CategoryRepository categoryRepository;
     private final BudgetService budgetService;
     private final WebSocketService webSocketService;
+    private final BillService billService;
 
     @Transactional
     @CacheEvict(value = { "dashboard_summary", "dashboard_trends", "dashboard_breakdown" }, allEntries = true)
@@ -47,6 +48,14 @@ public class TransactionService {
         // Update budget progress if expense
         if (transaction.getType() == Transaction.TransactionType.EXPENSE) {
             budgetService.updateBudgetProgress(userId, transaction.getCategoryId());
+        }
+
+        // Sync with Bills if category matches
+        String categoryName = category.getName().toLowerCase();
+        if (categoryName.contains("bill") || categoryName.contains("emi") ||
+                categoryName.contains("rent") || categoryName.contains("utility")) {
+            billService.syncBillPayment(userId, transaction.getDescription(),
+                    transaction.getAmount(), transaction.getTransactionDate());
         }
 
         // Send WebSocket notification
