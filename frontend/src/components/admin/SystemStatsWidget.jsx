@@ -51,7 +51,7 @@ const SystemStatsWidget = ({ stats }) => {
             <Grid item xs={12} sm={6} md={3}>
                 <StatCard
                     title="Total Revenue"
-                    value={`$${stats.revenue}`}
+                    value={`₹${stats.revenue}`}
                     icon={<AttachMoney />}
                     color="warning"
                 />

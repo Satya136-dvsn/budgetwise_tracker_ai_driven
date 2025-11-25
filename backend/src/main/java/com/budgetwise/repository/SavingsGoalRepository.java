@@ -9,12 +9,14 @@ import java.util.Optional;
 
 @Repository
 public interface SavingsGoalRepository extends JpaRepository<SavingsGoal, Long> {
-    
+
     List<SavingsGoal> findByUserId(Long userId);
-    
+
     List<SavingsGoal> findByUserIdAndStatus(Long userId, SavingsGoal.GoalStatus status);
-    
+
     Optional<SavingsGoal> findByIdAndUserId(Long id, Long userId);
-    
+
     Integer countByUserId(Long userId);
+
+    void deleteByUserId(Long userId);
 }

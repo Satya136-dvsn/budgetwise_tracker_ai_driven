@@ -1,57 +1,59 @@
 import api from './api';
 
 const adminService = {
-    getStats: async () => {
-        // Mock data
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({
-                    data: {
-                        totalUsers: 1250,
-                        activeUsers: 850,
-                        totalTransactions: 45000,
-                        serverStatus: 'Healthy',
-                        revenue: 12500
-                    }
-                });
-            }, 500);
-        });
+    // System Statistics
+    getSystemStats: async () => {
+        return api.get('/admin/stats');
     },
 
-    getUsers: async () => {
-        // Mock data
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({
-                    data: [
-                        { id: 1, name: 'John Doe', email: 'john@example.com', role: 'User', status: 'Active', joined: '2023-01-15' },
-                        { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Admin', status: 'Active', joined: '2023-02-20' },
-                        { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'User', status: 'Inactive', joined: '2023-03-10' },
-                        { id: 4, name: 'Alice Brown', email: 'alice@example.com', role: 'User', status: 'Active', joined: '2023-04-05' },
-                        { id: 5, name: 'Charlie Wilson', email: 'charlie@example.com', role: 'User', status: 'Suspended', joined: '2023-05-12' },
-                    ]
-                });
-            }, 600);
-        });
+    // User Management
+    getAllUsers: async (page = 0, size = 10) => {
+        return api.get(`/admin/users?page=${page}&size=${size}`);
     },
 
-    updateUserStatus: async (userId, status) => {
-        // Mock call
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({ data: { success: true, userId, status } });
-            }, 300);
-        });
+    getUserById: async (userId) => {
+        return api.get(`/admin/users/${userId}`);
+    },
+
+    toggleUserStatus: async (userId, enabled) => {
+        return api.put(`/admin/users/${userId}/status`, { enabled });
+    },
+
+    changeUserRole: async (userId, role) => {
+        return api.put(`/admin/users/${userId}/role`, { role });
     },
 
     deleteUser: async (userId) => {
-        // Mock call
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({ data: { success: true, userId } });
-            }, 300);
-        });
-    }
+        return api.delete(`/admin/users/${userId}`);
+    },
+
+    // Audit Logs
+    getAuditLogs: async (page = 0, size = 10) => {
+        return api.get(`/admin/audit-logs?page=${page}&size=${size}`);
+    },
+
+    getAdminAuditLogs: async (adminUserId, page = 0, size = 10) => {
+        return api.get(`/admin/audit-logs/admin/${adminUserId}?page=${page}&size=${size}`);
+    },
+
+    // Category Management
+    getAllCategories: async () => {
+        return api.get('/admin/categories');
+    },
+
+    // Legacy compatibility methods (map to new methods)
+    getStats: async () => {
+        return adminService.getSystemStats();
+    },
+
+    getUsers: async () => {
+        return adminService.getAllUsers(0, 100);
+    },
+
+    updateUserStatus: async (userId, status) => {
+        const enabled = status === 'Active' || status === true;
+        return adminService.toggleUserStatus(userId, enabled);
+    },
 };
 
 export default adminService;

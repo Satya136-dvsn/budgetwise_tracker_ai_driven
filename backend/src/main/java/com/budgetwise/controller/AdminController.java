@@ -26,17 +26,16 @@ public class AdminController {
     public ResponseEntity<AdminStatsDto> getSystemStats(
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         AdminStatsDto stats = adminService.getSystemStats();
-        
+
         // Log admin action
         adminService.logAdminAction(
-            userPrincipal.getId(),
-            "STATS_VIEW",
-            null,
-            "System",
-            "Viewed system statistics",
-            "127.0.0.1"
-        );
-        
+                userPrincipal.getId(),
+                "STATS_VIEW",
+                null,
+                "System",
+                "Viewed system statistics",
+                "127.0.0.1");
+
         return ResponseEntity.ok(stats);
     }
 
@@ -47,17 +46,16 @@ public class AdminController {
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
         Pageable pageable = PageRequest.of(page, size);
         Page<User> users = adminService.getAllUsers(pageable);
-        
+
         // Log admin action
         adminService.logAdminAction(
-            userPrincipal.getId(),
-            "USER_LIST",
-            null,
-            "User",
-            "Listed all users (page: " + page + ", size: " + size + ")",
-            "127.0.0.1"
-        );
-        
+                userPrincipal.getId(),
+                "USER_LIST",
+                null,
+                "User",
+                "Listed all users (page: " + page + ", size: " + size + ")",
+                "127.0.0.1");
+
         return ResponseEntity.ok(users);
     }
 
@@ -68,5 +66,41 @@ public class AdminController {
         Pageable pageable = PageRequest.of(page, size);
         Page<AuditLog> logs = adminService.getAuditLogs(pageable);
         return ResponseEntity.ok(logs);
+    }
+
+    @PutMapping("/users/{id}/status")
+    public ResponseEntity<Void> updateUserStatus(
+            @PathVariable Long id,
+            @RequestBody java.util.Map<String, Boolean> statusUpdate,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        Boolean enabled = statusUpdate.get("enabled");
+        adminService.updateUserStatus(id, enabled);
+
+        adminService.logAdminAction(
+                userPrincipal.getId(),
+                "USER_UPDATE",
+                id,
+                "User",
+                "Updated user status to: " + (enabled ? "Active" : "Inactive"),
+                "127.0.0.1");
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        adminService.deleteUser(id);
+
+        adminService.logAdminAction(
+                userPrincipal.getId(),
+                "USER_DELETE",
+                id,
+                "User",
+                "Deleted user",
+                "127.0.0.1");
+
+        return ResponseEntity.ok().build();
     }
 }

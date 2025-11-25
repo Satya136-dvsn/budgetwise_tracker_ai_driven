@@ -21,8 +21,27 @@ const AdminDashboard = () => {
                 adminService.getStats(),
                 adminService.getUsers()
             ]);
-            setStats(statsRes.data);
-            setUsers(usersRes.data);
+
+            // Map backend stats to widget format
+            setStats({
+                totalUsers: statsRes.data.totalUsers || 0,
+                activeUsers: statsRes.data.activeUsers || 0,
+                revenue: statsRes.data.revenue || 0,
+                serverStatus: 'Online' // Mock status
+            });
+
+            // Map backend user page to table format
+            const userContent = usersRes.data.content || [];
+            const mappedUsers = userContent.map(user => ({
+                id: user.id,
+                name: user.username, // Map username to name
+                email: user.email,
+                role: user.role,
+                status: user.isActive ? 'Active' : 'Inactive', // Map isActive to status
+                joined: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'
+            }));
+
+            setUsers(mappedUsers);
         } catch (error) {
             console.error('Failed to fetch admin data:', error);
             setSnackbar({ open: true, message: 'Failed to load dashboard data', severity: 'error' });

@@ -49,6 +49,10 @@ public class UserProfile {
     @Column(name = "notification_push", nullable = false)
     private Boolean notificationPush = true;
 
+    @Lob
+    @Column(name = "avatar", columnDefinition = "LONGTEXT")
+    private String avatar;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -193,5 +197,13 @@ public class UserProfile {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

@@ -7,16 +7,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    
-    Page<Comment> findByPostIdOrderByCreatedAtDesc(Long postId, Pageable pageable);
-    
+
     List<Comment> findByPostIdOrderByCreatedAtDesc(Long postId);
-    
-    Optional<Comment> findByIdAndUserId(Long id, Long userId);
-    
-    Integer countByPostId(Long postId);
+
+    Page<Comment> findByPostIdOrderByCreatedAtDesc(Long postId, Pageable pageable);
+
+    void deleteByUserId(Long userId);
+
+    void deleteByPostIdIn(List<Long> postIds);
+
+    List<Comment> findByUserId(Long userId);
 }

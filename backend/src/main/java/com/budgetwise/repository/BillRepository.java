@@ -20,4 +20,6 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
     Optional<Bill> findByIdAndUserId(Long id, Long userId);
 
     List<Bill> findByUserIdAndNextDueDateBeforeAndStatus(Long userId, LocalDate date, Bill.BillStatus status);
+
+    void deleteByUserId(Long userId);
 }

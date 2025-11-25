@@ -13,9 +13,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bills")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Bill {
 
     @Id
@@ -74,5 +71,130 @@ public class Bill {
         PAID,
         PENDING,
         OVERDUE
+    }
+
+    public Bill() {
+    }
+
+    public Bill(Long id, Long userId, String name, BigDecimal amount, String category, RecurrenceType recurrence,
+            LocalDate dueDate, LocalDate nextDueDate, BillStatus status, Boolean autoReminder, String notes,
+            LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.userId = userId;
+        this.name = name;
+        this.amount = amount;
+        this.category = category;
+        this.recurrence = recurrence;
+        this.dueDate = dueDate;
+        this.nextDueDate = nextDueDate;
+        this.status = status;
+        this.autoReminder = autoReminder;
+        this.notes = notes;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public RecurrenceType getRecurrence() {
+        return recurrence;
+    }
+
+    public void setRecurrence(RecurrenceType recurrence) {
+        this.recurrence = recurrence;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public LocalDate getNextDueDate() {
+        return nextDueDate;
+    }
+
+    public void setNextDueDate(LocalDate nextDueDate) {
+        this.nextDueDate = nextDueDate;
+    }
+
+    public BillStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BillStatus status) {
+        this.status = status;
+    }
+
+    public Boolean getAutoReminder() {
+        return autoReminder;
+    }
+
+    public void setAutoReminder(Boolean autoReminder) {
+        this.autoReminder = autoReminder;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

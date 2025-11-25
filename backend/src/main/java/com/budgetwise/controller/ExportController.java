@@ -17,6 +17,8 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class ExportController {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ExportController.class);
+
     private final ExportService exportService;
 
     @GetMapping("/transactions")
@@ -100,35 +102,46 @@ public class ExportController {
     @GetMapping("/dashboard")
     public ResponseEntity<byte[]> exportDashboard(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestParam(defaultValue = "csv") String format) throws java.io.IOException {
+            @RequestParam(defaultValue = "excel") String format) {
 
-        byte[] data;
-        String filename;
-        MediaType mediaType;
+        System.out.println("ExportController: Received dashboard export request. Format: " + format + ", User: "
+                + (userPrincipal != null ? userPrincipal.getUsername() : "null"));
 
-        switch (format.toLowerCase()) {
-            case "excel":
-                data = exportService.exportDashboardExcel(userPrincipal.getId());
-                filename = "dashboard.xlsx";
-                mediaType = MediaType
-                        .parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-                break;
-            case "pdf":
-                data = exportService.exportDashboardPDF(userPrincipal.getId());
-                filename = "dashboard.pdf";
-                mediaType = MediaType.APPLICATION_PDF;
-                break;
-            default:
-                throw new IllegalArgumentException("Dashboard export only supports Excel and PDF formats");
+        try {
+            byte[] data;
+            String filename;
+            MediaType mediaType;
+
+            switch (format.toLowerCase()) {
+                case "excel":
+                    data = exportService.exportDashboardExcel(userPrincipal.getId());
+                    filename = "dashboard.xlsx";
+                    mediaType = MediaType
+                            .parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                    break;
+                case "pdf":
+                    System.out.println("ExportController: Starting PDF generation...");
+                    data = exportService.exportDashboardPDF(userPrincipal.getId());
+                    System.out.println(
+                            "ExportController: PDF generation successful. Size: " + (data != null ? data.length : 0));
+                    filename = "dashboard.pdf";
+                    mediaType = MediaType.APPLICATION_PDF;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Dashboard export only supports Excel and PDF formats");
+            }
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(mediaType);
+            headers.setContentDispositionFormData("attachment", filename);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(data);
+        } catch (Exception e) {
+            logger.error("ExportController: Error during export", e);
+            return ResponseEntity.internalServerError().body(null);
         }
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(mediaType);
-        headers.setContentDispositionFormData("attachment", filename);
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(data);
     }
 
     @GetMapping("/budgets")
@@ -198,25 +211,5 @@ public class ExportController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(data);
-    }
-
-    // Keep POST endpoints for backward compatibility but ignore images
-    @PostMapping("/dashboard")
-    public ResponseEntity<byte[]> exportDashboardWithImages(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestBody com.budgetwise.dto.ExportRequest request) throws java.io.IOException {
-
-        // Redirect to standard export logic
-        return exportDashboard(userPrincipal, request.getFormat());
-    }
-
-    @PostMapping("/analytics")
-    public ResponseEntity<byte[]> exportAnalyticsWithImages(
-            @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestBody com.budgetwise.dto.ExportRequest request) throws java.io.IOException {
-
-        // Redirect to standard export logic
-        String timeRange = request.getTimeRange() != null ? request.getTimeRange() : "3M";
-        return exportAnalytics(userPrincipal, timeRange, request.getFormat());
     }
 }

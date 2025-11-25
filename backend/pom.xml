@@ -89,27 +89,6 @@
             <optional>true</optional>
         </dependency>
         
-        <!-- Apache Commons Math (for AI/ML) -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math3</artifactId>
-            <version>3.6.1</version>
-        </dependency>
-        
-        <!-- Apache POI (for Excel export) -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>5.2.5</version>
-        </dependency>
-        
-        <!-- OpenAI Java Client -->
-        <dependency>
-            <groupId>com.theokanning.openai-gpt3-java</groupId>
-            <artifactId>service</artifactId>
-            <version>0.18.2</version>
-        </dependency>
-        
         <!-- HTTP Client for API calls -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -185,17 +164,32 @@
             <version>7.6.0</version>
         </dependency>
 
-        <!-- JFreeChart for PDF Charts -->
+        <!-- XChart for PDF Charts -->
         <dependency>
-            <groupId>org.jfree</groupId>
-            <artifactId>jfreechart</artifactId>
-            <version>1.5.4</version>
+            <groupId>org.knowm.xchart</groupId>
+            <artifactId>xchart</artifactId>
+            <version>3.8.7</version>
+        </dependency>
+
+        <!-- Apache POI for Excel generation -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.2.5</version>
         </dependency>
         <dependency>
-            <groupId>org.jfree</groupId>
-            <artifactId>jcommon</artifactId>
-            <version>1.0.24</version>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.5</version>
         </dependency>
+
+        <!-- Apache Commons Math for statistical analysis -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.6.1</version>
+        </dependency>
+
     </dependencies>
     
     <build>

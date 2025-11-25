@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { Container, Box, Typography, Stepper, Step, StepLabel, Alert, Link } from '@mui/material'
+import { Container, Box, Typography, Stepper, Step, StepLabel, Alert, Link, FormControl, InputLabel, Select, MenuItem } from '@mui/material'
 import { useNavigate, Link as RouterLink } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { ProfessionalCard, ProfessionalInput, ProfessionalButton } from '../components/ui'
-import { Person, Email, Lock, Business, AttachMoney } from '@mui/icons-material'
+import { Person, Email, Lock, Business, AttachMoney, Work } from '@mui/icons-material'
 import { useAuth } from '../context/AuthContext'
 
 const steps = ['Basic Info', 'Account Setup', 'Financial Profile']
@@ -14,17 +14,19 @@ const SignUp = () => {
   const [activeStep, setActiveStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  
+
   const {
     register,
     handleSubmit,
     watch,
+    control,
     formState: { errors },
     trigger,
   } = useForm({
     defaultValues: {
       firstName: '',
       lastName: '',
+      role: 'USER',
       email: '',
       password: '',
       confirmPassword: '',
@@ -38,10 +40,10 @@ const SignUp = () => {
 
   const handleNext = async () => {
     let fieldsToValidate = []
-    
+
     switch (activeStep) {
       case 0:
-        fieldsToValidate = ['firstName', 'lastName']
+        fieldsToValidate = ['firstName', 'lastName', 'role']
         break
       case 1:
         fieldsToValidate = ['email', 'password', 'confirmPassword']
@@ -66,17 +68,18 @@ const SignUp = () => {
   const onSubmit = async (data) => {
     setLoading(true)
     setError('')
-    
+
     try {
       const userData = {
         firstName: data.firstName,
         lastName: data.lastName,
+        role: data.role,
         email: data.email,
         password: data.password,
         monthlyIncome: parseFloat(data.monthlyIncome),
         savingsTarget: parseFloat(data.savingsTarget),
       }
-      
+
       await registerUser(userData)
       navigate('/dashboard')
     } catch (err) {
@@ -109,7 +112,7 @@ const SignUp = () => {
                 })}
               />
             </Box>
-            
+
             <Box sx={{ mb: 3 }}>
               <ProfessionalInput
                 label="Last Name"
@@ -128,9 +131,34 @@ const SignUp = () => {
                 })}
               />
             </Box>
+
+            <Box sx={{ mb: 3 }}>
+              <Controller
+                name="role"
+                control={control}
+                rules={{ required: 'Role is required' }}
+                render={({ field }) => (
+                  <FormControl fullWidth error={!!errors.role}>
+                    <InputLabel>Role</InputLabel>
+                    <Select
+                      {...field}
+                      label="Role"
+                    >
+                      <MenuItem value="USER">User</MenuItem>
+                      <MenuItem value="PROFESSIONAL">Professional</MenuItem>
+                    </Select>
+                    {errors.role && (
+                      <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
+                        {errors.role.message}
+                      </Typography>
+                    )}
+                  </FormControl>
+                )}
+              />
+            </Box>
           </Box>
         )
-      
+
       case 1:
         return (
           <Box>
@@ -153,7 +181,7 @@ const SignUp = () => {
                 })}
               />
             </Box>
-            
+
             <Box sx={{ mb: 3 }}>
               <ProfessionalInput
                 label="Password"
@@ -173,7 +201,7 @@ const SignUp = () => {
                 })}
               />
             </Box>
-            
+
             <Box sx={{ mb: 3 }}>
               <ProfessionalInput
                 label="Confirm Password"
@@ -192,7 +220,7 @@ const SignUp = () => {
             </Box>
           </Box>
         )
-      
+
       case 2:
         return (
           <Box>
@@ -215,7 +243,7 @@ const SignUp = () => {
                 })}
               />
             </Box>
-            
+
             <Box sx={{ mb: 3 }}>
               <ProfessionalInput
                 label="Monthly Savings Target"
@@ -235,13 +263,13 @@ const SignUp = () => {
                 })}
               />
             </Box>
-            
+
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
               This information helps us provide personalized budget recommendations and track your financial goals.
             </Typography>
           </Box>
         )
-      
+
       default:
         return 'Unknown step'
     }
@@ -260,7 +288,7 @@ const SignUp = () => {
               {error}
             </Alert>
           )}
-          
+
           <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
             {steps.map((label) => (
               <Step key={label}>
@@ -268,10 +296,10 @@ const SignUp = () => {
               </Step>
             ))}
           </Stepper>
-          
+
           <Box component="form" onSubmit={handleSubmit(onSubmit)}>
             {getStepContent(activeStep)}
-            
+
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
               <ProfessionalButton
                 variant="outlined"
@@ -280,7 +308,7 @@ const SignUp = () => {
               >
                 Back
               </ProfessionalButton>
-              
+
               {activeStep === steps.length - 1 ? (
                 <ProfessionalButton
                   type="submit"
@@ -300,7 +328,7 @@ const SignUp = () => {
             </Box>
           </Box>
         </ProfessionalCard>
-        
+
         <Box sx={{ mt: 4, textAlign: 'center' }}>
           <Typography variant="body2" color="text.secondary">
             Already have an account?{' '}

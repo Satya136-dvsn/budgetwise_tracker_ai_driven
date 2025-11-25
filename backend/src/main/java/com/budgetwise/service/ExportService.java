@@ -22,6 +22,7 @@ public class ExportService {
     private final SavingsGoalRepository savingsGoalRepository;
     private final PdfReportGenerator pdfReportGenerator;
     private final ExcelReportGenerator excelReportGenerator;
+    private final PredictionService predictionService;
 
     // ========== PDF EXPORTS ==========
 
@@ -39,18 +40,25 @@ public class ExportService {
         List<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(userId, startDate,
                 endDate);
 
-        return pdfReportGenerator.generateAnalyticsPdf(userId, transactions, timeRange);
+        // Fetch AI predictions
+        List<com.budgetwise.dto.PredictionDto> predictions = predictionService.predictNextMonthExpenses(userId);
+
+        return pdfReportGenerator.generateAnalyticsPdf(userId, transactions, timeRange, predictions);
     }
 
     public byte[] exportTransactionsPDF(Long userId, LocalDate startDate, LocalDate endDate) {
         List<Transaction> transactions;
+        String dateRange;
+
         if (startDate != null && endDate != null) {
             transactions = transactionRepository.findByUserIdAndTransactionDateBetween(userId, startDate, endDate);
+            dateRange = startDate.toString() + " to " + endDate.toString();
         } else {
             transactions = transactionRepository.findByUserIdOrderByCreatedAtDesc(userId);
+            dateRange = "All Time";
         }
-        // Reusing analytics generator for now as it has a generic transaction table
-        return pdfReportGenerator.generateAnalyticsPdf(userId, transactions, "Custom Range");
+
+        return pdfReportGenerator.generateTransactionsPdf(userId, transactions, dateRange);
     }
 
     public byte[] exportBudgetsPDF(Long userId) {

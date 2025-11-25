@@ -21,7 +21,6 @@ const ProfileSettings = () => {
         const loadProfile = async () => {
             try {
                 const response = await userService.getProfile();
-                const savedAvatar = localStorage.getItem('userAvatar');
                 if (response.data) {
                     setFormData({
                         firstName: response.data.firstName || '',
@@ -29,7 +28,7 @@ const ProfileSettings = () => {
                         email: user?.email || '', // Get email from AuthContext user
                         phone: response.data.phone || '',
                         bio: response.data.bio || '',
-                        avatar: savedAvatar || ''
+                        avatar: response.data.avatar || ''
                     });
                 }
             } catch (error) {
@@ -77,11 +76,12 @@ const ProfileSettings = () => {
                 reader.onloadend = async () => {
                     const imageDataUrl = reader.result;
 
-                    // Save to localStorage
-                    localStorage.setItem('userAvatar', imageDataUrl);
-
                     // Update avatar in state (for immediate display)
-                    setFormData({ ...formData, avatar: imageDataUrl });
+                    const updatedData = { ...formData, avatar: imageDataUrl };
+                    setFormData(updatedData);
+
+                    // Save to backend database
+                    await userService.updateProfile(updatedData);
 
                     // Dispatch event to notify other components (navbar)
                     window.dispatchEvent(new CustomEvent('avatarChanged', { detail: imageDataUrl }));

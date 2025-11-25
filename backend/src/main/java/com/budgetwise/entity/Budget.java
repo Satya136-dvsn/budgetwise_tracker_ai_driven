@@ -16,9 +16,6 @@ import java.time.LocalDateTime;
         @Index(name = "idx_user_period", columnList = "user_id, start_date, end_date"),
         @Index(name = "idx_category", columnList = "category_id")
 })
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Budget {
 
     @Id
@@ -60,5 +57,112 @@ public class Budget {
 
     public enum BudgetPeriod {
         WEEKLY, MONTHLY, YEARLY
+    }
+
+    public Budget() {
+    }
+
+    public Budget(Long id, Long userId, Long categoryId, BigDecimal amount, BudgetPeriod period, LocalDate startDate,
+            LocalDate endDate, BigDecimal alertThreshold, BigDecimal spent, LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
+        this.id = id;
+        this.userId = userId;
+        this.categoryId = categoryId;
+        this.amount = amount;
+        this.period = period;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.alertThreshold = alertThreshold;
+        this.spent = spent;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public BudgetPeriod getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(BudgetPeriod period) {
+        this.period = period;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    public BigDecimal getAlertThreshold() {
+        return alertThreshold;
+    }
+
+    public void setAlertThreshold(BigDecimal alertThreshold) {
+        this.alertThreshold = alertThreshold;
+    }
+
+    public BigDecimal getSpent() {
+        return spent;
+    }
+
+    public void setSpent(BigDecimal spent) {
+        this.spent = spent;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

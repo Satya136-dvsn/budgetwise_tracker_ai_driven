@@ -34,7 +34,9 @@ const exportService = {
      * Export dashboard summary in specified format
      */
     exportDashboard: async (format = 'excel') => {
-        const response = await apiClient.get(`/export/dashboard?format=${format}`, {
+        console.log(`Exporting dashboard with format: ${format}`);
+        const url = `/export/dashboard?format=${format}`;
+        const response = await apiClient.get(url, {
             responseType: 'blob',
         });
 
@@ -58,44 +60,23 @@ const exportService = {
      * Export analytics data in specified format
      */
     exportAnalytics: async (timeRange = '3M', format = 'excel') => {
-        const response = await apiClient.get(
-            `/export/analytics?timeRange=${timeRange}&format=${format}`,
-            {
-                responseType: 'blob',
-            }
-        );
+        console.log(`Exporting analytics with timeRange: ${timeRange}, format: ${format}`);
+        const url = `/export/analytics?timeRange=${timeRange}&format=${format}`;
+        const response = await apiClient.get(url, {
+            responseType: 'blob',
+        });
 
         const extension = format === 'excel' ? 'xlsx' : format;
         downloadFile(response.data, `analytics_${timeRange}.${extension}`);
     },
 
-    /**
-     * Export dashboard with images
-     */
-    exportDashboardWithImages: async (format, images) => {
-        const response = await apiClient.post('/export/dashboard', {
-            format,
-            images
-        }, {
-            responseType: 'blob'
-        });
-        const extension = format === 'excel' ? 'xlsx' : format;
-        downloadFile(response.data, `dashboard.${extension}`);
+    // Convenience methods for Analytics
+    exportAnalyticsExcel: async (timeRange) => {
+        return exportService.exportAnalytics(timeRange, 'excel');
     },
 
-    /**
-     * Export analytics with images
-     */
-    exportAnalyticsWithImages: async (timeRange, format, images) => {
-        const response = await apiClient.post('/export/analytics', {
-            timeRange,
-            format,
-            images
-        }, {
-            responseType: 'blob'
-        });
-        const extension = format === 'excel' ? 'xlsx' : format;
-        downloadFile(response.data, `analytics_${timeRange}.${extension}`);
+    exportAnalyticsPDF: async (timeRange) => {
+        return exportService.exportAnalytics(timeRange, 'pdf');
     },
 };
 

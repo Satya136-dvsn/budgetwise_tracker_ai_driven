@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import html2canvas from 'html2canvas';
+
 import { useNavigate } from 'react-router-dom';
 import { Container, Grid, Typography, Box, Fade, Paper, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { ShowChart, PieChart, AccountBalanceWallet, CompareArrows } from '@mui/icons-material';
@@ -62,16 +62,19 @@ const Analytics = () => {
         if (data && data.categoryId) {
             navigate(`/transactions?category=${data.categoryId}`);
         }
-    };
-
+    }
     const handleExport = async (format) => {
         try {
-            setLoading(true);
-            await exportService.exportAnalytics(timeRange, format);
+            setIsExporting(true);
+            if (format === 'excel') {
+                await exportService.exportAnalyticsExcel(timeRange);
+            } else if (format === 'pdf') {
+                await exportService.exportAnalyticsPDF(timeRange);
+            }
         } catch (err) {
-            console.error('Export failed:', err);
+            console.error('[Analytics Export] Export failed:', err);
         } finally {
-            setLoading(false);
+            setIsExporting(false);
         }
     };
 

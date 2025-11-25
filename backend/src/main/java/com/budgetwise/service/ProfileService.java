@@ -172,6 +172,9 @@ public class ProfileService {
         if (dto.getNotificationPush() != null) {
             profile.setNotificationPush(dto.getNotificationPush());
         }
+        if (dto.getAvatar() != null) {
+            profile.setAvatar(dto.getAvatar());
+        }
     }
 
     /**
@@ -191,6 +194,7 @@ public class ProfileService {
         dto.setDateFormat(profile.getDateFormat());
         dto.setNotificationEmail(profile.getNotificationEmail());
         dto.setNotificationPush(profile.getNotificationPush());
+        dto.setAvatar(profile.getAvatar());
         return dto;
     }
 }

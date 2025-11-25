@@ -7,10 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class DashboardSummaryDto {
     private BigDecimal totalIncome;
     private BigDecimal totalExpenses;
@@ -19,4 +15,128 @@ public class DashboardSummaryDto {
     private Integer transactionCount;
     private Integer budgetCount;
     private Integer goalCount;
+
+    public DashboardSummaryDto() {
+    }
+
+    public DashboardSummaryDto(BigDecimal totalIncome, BigDecimal totalExpenses, BigDecimal balance, Double savingsRate,
+            Integer transactionCount, Integer budgetCount, Integer goalCount) {
+        this.totalIncome = totalIncome;
+        this.totalExpenses = totalExpenses;
+        this.balance = balance;
+        this.savingsRate = savingsRate;
+        this.transactionCount = transactionCount;
+        this.budgetCount = budgetCount;
+        this.goalCount = goalCount;
+    }
+
+    public BigDecimal getTotalIncome() {
+        return totalIncome;
+    }
+
+    public void setTotalIncome(BigDecimal totalIncome) {
+        this.totalIncome = totalIncome;
+    }
+
+    public BigDecimal getTotalExpenses() {
+        return totalExpenses;
+    }
+
+    public void setTotalExpenses(BigDecimal totalExpenses) {
+        this.totalExpenses = totalExpenses;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
+
+    public Double getSavingsRate() {
+        return savingsRate;
+    }
+
+    public void setSavingsRate(Double savingsRate) {
+        this.savingsRate = savingsRate;
+    }
+
+    public Integer getTransactionCount() {
+        return transactionCount;
+    }
+
+    public void setTransactionCount(Integer transactionCount) {
+        this.transactionCount = transactionCount;
+    }
+
+    public Integer getBudgetCount() {
+        return budgetCount;
+    }
+
+    public void setBudgetCount(Integer budgetCount) {
+        this.budgetCount = budgetCount;
+    }
+
+    public Integer getGoalCount() {
+        return goalCount;
+    }
+
+    public void setGoalCount(Integer goalCount) {
+        this.goalCount = goalCount;
+    }
+
+    public static DashboardSummaryDtoBuilder builder() {
+        return new DashboardSummaryDtoBuilder();
+    }
+
+    public static class DashboardSummaryDtoBuilder {
+        private BigDecimal totalIncome;
+        private BigDecimal totalExpenses;
+        private BigDecimal balance;
+        private Double savingsRate;
+        private Integer transactionCount;
+        private Integer budgetCount;
+        private Integer goalCount;
+
+        public DashboardSummaryDtoBuilder totalIncome(BigDecimal totalIncome) {
+            this.totalIncome = totalIncome;
+            return this;
+        }
+
+        public DashboardSummaryDtoBuilder totalExpenses(BigDecimal totalExpenses) {
+            this.totalExpenses = totalExpenses;
+            return this;
+        }
+
+        public DashboardSummaryDtoBuilder balance(BigDecimal balance) {
+            this.balance = balance;
+            return this;
+        }
+
+        public DashboardSummaryDtoBuilder savingsRate(Double savingsRate) {
+            this.savingsRate = savingsRate;
+            return this;
+        }
+
+        public DashboardSummaryDtoBuilder transactionCount(Integer transactionCount) {
+            this.transactionCount = transactionCount;
+            return this;
+        }
+
+        public DashboardSummaryDtoBuilder budgetCount(Integer budgetCount) {
+            this.budgetCount = budgetCount;
+            return this;
+        }
+
+        public DashboardSummaryDtoBuilder goalCount(Integer goalCount) {
+            this.goalCount = goalCount;
+            return this;
+        }
+
+        public DashboardSummaryDto build() {
+            return new DashboardSummaryDto(totalIncome, totalExpenses, balance, savingsRate, transactionCount,
+                    budgetCount, goalCount);
+        }
+    }
 }

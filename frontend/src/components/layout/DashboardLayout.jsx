@@ -42,6 +42,7 @@ import {
   Info as InfoIcon,
   Warning as WarningIcon,
   TrendingUp as TrendingUpIcon,
+  AdminPanelSettings as AdminIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
@@ -61,6 +62,7 @@ const menuItems = [
   { text: 'Analytics', icon: <AnalyticsIcon />, path: '/analytics' },
   { text: 'Reports', icon: <ReportsIcon />, path: '/reports' },
   { text: 'Community', icon: <CommunityIcon />, path: '/community' },
+  { text: 'Admin', icon: <AdminIcon />, path: '/admin', adminOnly: true },
 ];
 
 const DashboardLayout = () => {
@@ -84,14 +86,24 @@ const DashboardLayout = () => {
     localStorage.setItem('sidebarOpen', JSON.stringify(sidebarOpen));
   }, [sidebarOpen]);
 
-  // Load user avatar and listen for changes
+  // Load user avatar from API
   useEffect(() => {
-    const savedAvatar = localStorage.getItem('userAvatar');
-    if (savedAvatar) {
-      setUserAvatar(savedAvatar);
-    }
+    const loadAvatar = async () => {
+      try {
+        // Import userService
+        const userService = await import('../../services/userService');
+        const response = await userService.default.getProfile();
+        if (response.data?.avatar) {
+          setUserAvatar(response.data.avatar);
+        }
+      } catch (error) {
+        console.error('Failed to load avatar:', error);
+      }
+    };
 
-    // Listen for avatar changes
+    loadAvatar();
+
+    // Listen for avatar changes from ProfileSettings
     const handleAvatarChange = (event) => {
       setUserAvatar(event.detail);
     };
@@ -171,55 +183,57 @@ const DashboardLayout = () => {
 
       {/* Navigation Menu */}
       <List sx={{ flexGrow: 1, py: 2 }}>
-        {menuItems.map((item) => {
-          const isSelected = location.pathname === item.path;
-          return (
-            <ListItem key={item.text} disablePadding sx={{ px: 1, mb: 0.5 }}>
-              <Tooltip title={!sidebarOpen ? item.text : ''} placement="right">
-                <ListItemButton
-                  selected={isSelected}
-                  onClick={() => handleNavigation(item.path)}
-                  sx={{
-                    borderRadius: 1,
-                    minHeight: 48,
-                    justifyContent: sidebarOpen ? 'initial' : 'center',
-                    px: 2.5,
-                    '&.Mui-selected': {
-                      backgroundColor: theme.palette.primary.main + '20',
-                      borderLeft: `3px solid ${theme.palette.primary.main}`,
-                      '&:hover': {
-                        backgroundColor: theme.palette.primary.main + '30',
-                      },
-                    },
-                    '&:hover': {
-                      backgroundColor: theme.palette.action.hover,
-                    },
-                  }}
-                >
-                  <ListItemIcon
+        {menuItems
+          .filter((item) => !item.adminOnly || (item.adminOnly && user?.role === 'ADMIN'))
+          .map((item) => {
+            const isSelected = location.pathname === item.path;
+            return (
+              <ListItem key={item.text} disablePadding sx={{ px: 1, mb: 0.5 }}>
+                <Tooltip title={!sidebarOpen ? item.text : ''} placement="right">
+                  <ListItemButton
+                    selected={isSelected}
+                    onClick={() => handleNavigation(item.path)}
                     sx={{
-                      minWidth: 0,
-                      mr: sidebarOpen ? 3 : 'auto',
-                      justifyContent: 'center',
-                      color: isSelected ? theme.palette.primary.main : 'inherit',
+                      borderRadius: 1,
+                      minHeight: 48,
+                      justifyContent: sidebarOpen ? 'initial' : 'center',
+                      px: 2.5,
+                      '&.Mui-selected': {
+                        backgroundColor: theme.palette.primary.main + '20',
+                        borderLeft: `3px solid ${theme.palette.primary.main}`,
+                        '&:hover': {
+                          backgroundColor: theme.palette.primary.main + '30',
+                        },
+                      },
+                      '&:hover': {
+                        backgroundColor: theme.palette.action.hover,
+                      },
                     }}
                   >
-                    {item.icon}
-                  </ListItemIcon>
-                  {sidebarOpen && (
-                    <ListItemText
-                      primary={item.text}
-                      primaryTypographyProps={{
-                        fontSize: '0.875rem',
-                        fontWeight: isSelected ? 600 : 400,
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: sidebarOpen ? 3 : 'auto',
+                        justifyContent: 'center',
+                        color: isSelected ? theme.palette.primary.main : 'inherit',
                       }}
-                    />
-                  )}
-                </ListItemButton>
-              </Tooltip>
-            </ListItem>
-          );
-        })}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    {sidebarOpen && (
+                      <ListItemText
+                        primary={item.text}
+                        primaryTypographyProps={{
+                          fontSize: '0.875rem',
+                          fontWeight: isSelected ? 600 : 400,
+                        }}
+                      />
+                    )}
+                  </ListItemButton>
+                </Tooltip>
+              </ListItem>
+            );
+          })}
       </List>
 
       <Divider />

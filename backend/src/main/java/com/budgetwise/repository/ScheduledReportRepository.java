@@ -11,4 +11,6 @@ public interface ScheduledReportRepository extends JpaRepository<ScheduledReport
     List<ScheduledReport> findByUserId(Long userId);
 
     List<ScheduledReport> findByActiveTrue();
+
+    void deleteByUserId(Long userId);
 }

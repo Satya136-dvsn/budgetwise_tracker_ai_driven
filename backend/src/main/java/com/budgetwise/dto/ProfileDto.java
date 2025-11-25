@@ -37,6 +37,7 @@ public class ProfileDto {
     private Boolean notificationEmail;
 
     private Boolean notificationPush;
+    private String avatar;
 
     // Constructors
     public ProfileDto() {
@@ -137,5 +138,13 @@ public class ProfileDto {
 
     public void setNotificationPush(Boolean notificationPush) {
         this.notificationPush = notificationPush;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

@@ -15,6 +15,7 @@ import ExportMenu from '../components/common/ExportMenu';
 import dashboardService from '../services/dashboardService';
 import exportService from '../services/exportService';
 import { getCategoryColor } from '../utils/categoryColors';
+import { formatCurrency, formatDate } from '../utils/formatters';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -49,20 +50,17 @@ const Dashboard = () => {
     }
   };
 
-  const formatCurrency = (amount) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
-  const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' });
-
   const handleExport = async (format) => {
     try {
-      setLoading(true);
+      setIsExporting(true);
       await exportService.exportDashboard(format);
     } catch (err) {
       console.error('Export failed:', err);
-      setError('Failed to export dashboard');
     } finally {
-      setLoading(false);
+      setIsExporting(false);
     }
   };
+
 
   if (loading && !isExporting) {
     return (

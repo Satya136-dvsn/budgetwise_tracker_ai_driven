@@ -10,6 +10,10 @@ import {
   Alert,
   Paper,
   Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 
@@ -21,6 +25,7 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    role: 'USER',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -126,6 +131,19 @@ const Register = () => {
               required
               autoComplete="new-password"
             />
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="role-label">Role</InputLabel>
+              <Select
+                labelId="role-label"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                label="Role"
+              >
+                <MenuItem value="USER">User</MenuItem>
+                <MenuItem value="PROFESSIONAL">Professional</MenuItem>
+              </Select>
+            </FormControl>
             <Button
               type="submit"
               fullWidth
