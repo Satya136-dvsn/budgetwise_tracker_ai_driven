@@ -3,7 +3,6 @@ package com.budgetwise.controller;
 import com.budgetwise.service.ExportService;
 import com.budgetwise.service.ProfileService;
 import com.budgetwise.service.UserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +12,15 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/gdpr")
-@RequiredArgsConstructor
 public class GdprController {
 
     private final ExportService exportService;
     private final UserService userService;
+
+    public GdprController(ExportService exportService, UserService userService) {
+        this.exportService = exportService;
+        this.userService = userService;
+    }
 
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportUserData(@AuthenticationPrincipal UserDetails userDetails) {

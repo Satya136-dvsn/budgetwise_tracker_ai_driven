@@ -7,7 +7,7 @@ import com.budgetwise.repository.BudgetRepository;
 import com.budgetwise.repository.SavingsGoalRepository;
 import com.budgetwise.repository.TransactionRepository;
 import com.budgetwise.repository.UserProfileRepository;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,13 +16,20 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class ChatAssistantService {
 
     private final TransactionRepository transactionRepository;
     private final BudgetRepository budgetRepository;
     private final SavingsGoalRepository savingsGoalRepository;
     private final UserProfileRepository userProfileRepository;
+
+    public ChatAssistantService(TransactionRepository transactionRepository, BudgetRepository budgetRepository,
+            SavingsGoalRepository savingsGoalRepository, UserProfileRepository userProfileRepository) {
+        this.transactionRepository = transactionRepository;
+        this.budgetRepository = budgetRepository;
+        this.savingsGoalRepository = savingsGoalRepository;
+        this.userProfileRepository = userProfileRepository;
+    }
 
     public ChatResponseDto chat(String message, String conversationId, Long userId) {
         // Generate conversation ID if not provided
@@ -66,7 +73,7 @@ public class ChatAssistantService {
         int budgetCount = budgetRepository.countByUserId(userId);
         int goalCount = savingsGoalRepository.countByUserId(userId);
 
-        context.append(String.format("Current month: Income $%.2f, Expenses $%.2f, ", 
+        context.append(String.format("Current month: Income $%.2f, Expenses $%.2f, ",
                 totalIncome, totalExpenses));
         context.append(String.format("Balance $%.2f. ", totalIncome.subtract(totalExpenses)));
         context.append(String.format("You have %d budgets and %d savings goals.", budgetCount, goalCount));
@@ -76,7 +83,7 @@ public class ChatAssistantService {
 
     private String generateResponse(String message, Long userId, String context) {
         // Simple rule-based responses (in production, integrate with OpenAI API)
-        
+
         if (message.contains("spending") || message.contains("expense")) {
             return generateSpendingResponse(userId);
         } else if (message.contains("saving") || message.contains("save")) {

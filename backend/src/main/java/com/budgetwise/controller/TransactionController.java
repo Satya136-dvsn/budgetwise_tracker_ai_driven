@@ -5,7 +5,7 @@ import com.budgetwise.entity.Transaction;
 import com.budgetwise.security.UserPrincipal;
 import com.budgetwise.service.TransactionService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,10 +20,13 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/transactions")
-@RequiredArgsConstructor
 public class TransactionController {
 
     private final TransactionService transactionService;
+
+    public TransactionController(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
 
     @PostMapping
     public ResponseEntity<TransactionDto> createTransaction(

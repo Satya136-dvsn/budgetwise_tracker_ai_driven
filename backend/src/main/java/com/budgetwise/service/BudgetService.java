@@ -7,7 +7,6 @@ import com.budgetwise.exception.ResourceNotFoundException;
 import com.budgetwise.repository.BudgetRepository;
 import com.budgetwise.repository.CategoryRepository;
 import com.budgetwise.repository.TransactionRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +17,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class BudgetService {
 
     private final BudgetRepository budgetRepository;
     private final CategoryRepository categoryRepository;
     private final TransactionRepository transactionRepository;
+
+    public BudgetService(BudgetRepository budgetRepository, CategoryRepository categoryRepository, TransactionRepository transactionRepository) {
+        this.budgetRepository = budgetRepository;
+        this.categoryRepository = categoryRepository;
+        this.transactionRepository = transactionRepository;
+   }
 
     @Transactional
     public BudgetDto createBudget(BudgetDto dto, Long userId) {

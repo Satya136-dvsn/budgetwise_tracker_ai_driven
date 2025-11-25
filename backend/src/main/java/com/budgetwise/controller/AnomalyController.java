@@ -3,7 +3,7 @@ package com.budgetwise.controller;
 import com.budgetwise.dto.AnomalyDto;
 import com.budgetwise.security.UserPrincipal;
 import com.budgetwise.service.AnomalyDetectionService;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +12,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/anomalies")
-@RequiredArgsConstructor
 public class AnomalyController {
 
     private final AnomalyDetectionService anomalyDetectionService;
+
+    public AnomalyController(AnomalyDetectionService anomalyDetectionService) {
+        this.anomalyDetectionService = anomalyDetectionService;
+    }
 
     @GetMapping
     public ResponseEntity<List<AnomalyDto>> detectAnomalies(

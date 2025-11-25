@@ -5,7 +5,6 @@ import com.budgetwise.entity.Transaction;
 import com.budgetwise.repository.BudgetRepository;
 import com.budgetwise.repository.SavingsGoalRepository;
 import com.budgetwise.repository.TransactionRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +19,21 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class DashboardService {
 
         private final TransactionRepository transactionRepository;
         private final BudgetRepository budgetRepository;
         private final SavingsGoalRepository savingsGoalRepository;
         private final com.budgetwise.repository.CategoryRepository categoryRepository;
+
+        public DashboardService(TransactionRepository transactionRepository, BudgetRepository budgetRepository,
+                        SavingsGoalRepository savingsGoalRepository,
+                        com.budgetwise.repository.CategoryRepository categoryRepository) {
+                this.transactionRepository = transactionRepository;
+                this.budgetRepository = budgetRepository;
+                this.savingsGoalRepository = savingsGoalRepository;
+                this.categoryRepository = categoryRepository;
+        }
 
         @Cacheable(value = "dashboard_summary", key = "#userId")
         public DashboardSummaryDto getDashboardSummary(Long userId) {

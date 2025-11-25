@@ -5,7 +5,6 @@ import com.budgetwise.entity.Transaction;
 import com.budgetwise.entity.Category;
 import com.budgetwise.repository.TransactionRepository;
 import com.budgetwise.repository.CategoryRepository;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -19,11 +18,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class PredictionService {
 
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
+
+    public PredictionService(TransactionRepository transactionRepository, CategoryRepository categoryRepository) {
+        this.transactionRepository = transactionRepository;
+        this.categoryRepository = categoryRepository;
+    }
 
     @Cacheable(value = "predictions", key = "#userId")
     public List<PredictionDto> predictNextMonthExpenses(Long userId) {

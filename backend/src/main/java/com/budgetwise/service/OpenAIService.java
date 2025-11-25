@@ -3,8 +3,7 @@ package com.budgetwise.service;
 import com.budgetwise.config.ExternalApiConfig;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 
 @Service
-@RequiredArgsConstructor
+
 public class OpenAIService {
 
     private static final Logger logger = LoggerFactory.getLogger(OpenAIService.class);
@@ -21,6 +20,11 @@ public class OpenAIService {
     private final ExternalApiConfig apiConfig;
     private final OkHttpClient httpClient;
     private final Gson gson = new Gson();
+
+    public OpenAIService(ExternalApiConfig apiConfig, OkHttpClient httpClient) {
+        this.apiConfig = apiConfig;
+        this.httpClient = httpClient;
+    }
 
     /**
      * Get financial advice from OpenAI GPT

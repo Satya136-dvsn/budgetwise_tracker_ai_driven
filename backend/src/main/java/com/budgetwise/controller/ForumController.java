@@ -4,7 +4,7 @@ import com.budgetwise.dto.CommentDto;
 import com.budgetwise.dto.PostDto;
 import com.budgetwise.security.UserPrincipal;
 import com.budgetwise.service.ForumService;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,10 +16,13 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/forum")
-@RequiredArgsConstructor
 public class ForumController {
 
     private final ForumService forumService;
+
+    public ForumController(ForumService forumService) {
+        this.forumService = forumService;
+    }
 
     @PostMapping("/posts")
     public ResponseEntity<PostDto> createPost(

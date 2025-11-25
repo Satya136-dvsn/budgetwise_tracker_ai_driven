@@ -8,19 +8,25 @@ import com.budgetwise.entity.Post;
 import com.budgetwise.repository.CommentRepository;
 import com.budgetwise.repository.LikeRepository;
 import com.budgetwise.repository.PostRepository;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 public class ForumService {
 
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final LikeRepository likeRepository;
+
+    public ForumService(PostRepository postRepository, CommentRepository commentRepository,
+            LikeRepository likeRepository) {
+        this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
+        this.likeRepository = likeRepository;
+    }
 
     public Page<PostDto> getPosts(Pageable pageable, String sort, Long userId) {
         if ("trending".equals(sort)) {
@@ -45,7 +51,7 @@ public class ForumService {
         post.setTags(postDto.getTags());
         post.setLikeCount(0);
         post.setCommentCount(0);
-        
+
         Post saved = postRepository.save(post);
         return convertToPostDto(saved, userId);
     }
@@ -54,7 +60,7 @@ public class ForumService {
     public void likePost(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
-        
+
         if (likeRepository.findByUserIdAndPostIdAndCommentIdIsNull(userId, postId).isEmpty()) {
             Like like = new Like();
             like.setUserId(userId);
@@ -70,7 +76,7 @@ public class ForumService {
     public void unlikePost(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
-        
+
         likeRepository.findByUserIdAndPostIdAndCommentIdIsNull(userId, postId).ifPresent(like -> {
             likeRepository.delete(like);
             post.setLikeCount(Math.max(0, post.getLikeCount() - 1));
@@ -78,24 +84,22 @@ public class ForumService {
         });
     }
 
-
-
     @Transactional
     public CommentDto addComment(Long postId, CommentDto commentDto, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
-        
+
         Comment comment = new Comment();
         comment.setPostId(postId);
         comment.setUserId(userId);
         comment.setContent(commentDto.getContent());
         comment.setLikeCount(0);
-        
+
         Comment saved = commentRepository.save(comment);
-        
+
         post.setCommentCount(post.getCommentCount() + 1);
         postRepository.save(post);
-        
+
         return convertToCommentDto(saved);
     }
 
@@ -106,7 +110,7 @@ public class ForumService {
 
     private PostDto convertToPostDto(Post post, Long userId) {
         boolean isLiked = likeRepository.findByUserIdAndPostIdAndCommentIdIsNull(userId, post.getId()).isPresent();
-        
+
         return PostDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())

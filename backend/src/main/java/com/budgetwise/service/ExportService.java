@@ -6,7 +6,6 @@ import com.budgetwise.entity.Transaction;
 import com.budgetwise.repository.BudgetRepository;
 import com.budgetwise.repository.SavingsGoalRepository;
 import com.budgetwise.repository.TransactionRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -14,7 +13,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class ExportService {
 
     private final TransactionRepository transactionRepository;
@@ -23,6 +21,17 @@ public class ExportService {
     private final PdfReportGenerator pdfReportGenerator;
     private final ExcelReportGenerator excelReportGenerator;
     private final PredictionService predictionService;
+
+    public ExportService(TransactionRepository transactionRepository, BudgetRepository budgetRepository,
+            SavingsGoalRepository savingsGoalRepository, PdfReportGenerator pdfReportGenerator,
+            ExcelReportGenerator excelReportGenerator, PredictionService predictionService) {
+        this.transactionRepository = transactionRepository;
+        this.budgetRepository = budgetRepository;
+        this.savingsGoalRepository = savingsGoalRepository;
+        this.pdfReportGenerator = pdfReportGenerator;
+        this.excelReportGenerator = excelReportGenerator;
+        this.predictionService = predictionService;
+    }
 
     // ========== PDF EXPORTS ==========
 

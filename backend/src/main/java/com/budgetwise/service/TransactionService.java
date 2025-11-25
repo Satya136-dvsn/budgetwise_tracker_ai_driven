@@ -6,7 +6,6 @@ import com.budgetwise.entity.Transaction;
 import com.budgetwise.exception.ResourceNotFoundException;
 import com.budgetwise.repository.CategoryRepository;
 import com.budgetwise.repository.TransactionRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +17,6 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 @Service
-@RequiredArgsConstructor
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
@@ -26,6 +24,14 @@ public class TransactionService {
     private final BudgetService budgetService;
     private final WebSocketService webSocketService;
     private final BillService billService;
+
+    public TransactionService(TransactionRepository transactionRepository, CategoryRepository categoryRepository, BudgetService budgetService, WebSocketService webSocketService, BillService billService) {
+        this.transactionRepository = transactionRepository;
+        this.categoryRepository = categoryRepository;
+        this.budgetService = budgetService;
+        this.webSocketService = webSocketService;
+        this.billService = billService;
+   }
 
     @Transactional
     @CacheEvict(value = { "dashboard_summary", "dashboard_trends", "dashboard_breakdown" }, allEntries = true)

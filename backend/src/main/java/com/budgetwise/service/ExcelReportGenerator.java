@@ -4,7 +4,6 @@ import com.budgetwise.entity.Budget;
 import com.budgetwise.entity.SavingsGoal;
 import com.budgetwise.entity.Transaction;
 import com.budgetwise.repository.CategoryRepository;
-import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 
 import org.apache.poi.xssf.usermodel.*;
@@ -15,10 +14,13 @@ import java.io.IOException;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class ExcelReportGenerator {
 
     private final CategoryRepository categoryRepository;
+
+    public ExcelReportGenerator(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
 
     public byte[] generateDashboardExcel(Long userId, List<Transaction> transactions, List<Budget> budgets,
             List<SavingsGoal> goals) throws IOException {

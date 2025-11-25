@@ -1,6 +1,5 @@
 package com.budgetwise.dto;
 
-import lombok.Data;
 import java.util.Map;
 
 public class ExportRequest {

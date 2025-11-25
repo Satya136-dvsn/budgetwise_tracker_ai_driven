@@ -3,7 +3,6 @@ package com.budgetwise.service;
 import com.budgetwise.dto.AnomalyDto;
 import com.budgetwise.entity.Transaction;
 import com.budgetwise.repository.TransactionRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -15,10 +14,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class AnomalyDetectionService {
 
     private final TransactionRepository transactionRepository;
+
+    public AnomalyDetectionService(TransactionRepository transactionRepository) {
+        this.transactionRepository = transactionRepository;
+   }
 
     public List<AnomalyDto> detectAnomalies(Long userId) {
         // Get last 3 months of transactions

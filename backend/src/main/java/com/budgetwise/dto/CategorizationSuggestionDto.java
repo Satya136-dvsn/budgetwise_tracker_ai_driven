@@ -1,10 +1,5 @@
 package com.budgetwise.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 public class CategorizationSuggestionDto {
     private Long categoryId;
     private String categoryName;

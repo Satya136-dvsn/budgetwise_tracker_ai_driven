@@ -6,7 +6,7 @@ import com.budgetwise.entity.Transaction;
 import com.budgetwise.exception.ResourceNotFoundException;
 import com.budgetwise.repository.BillRepository;
 import com.budgetwise.repository.TransactionRepository;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +18,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class BillService {
 
     private final BillRepository billRepository;
     private final TransactionRepository transactionRepository;
+
+    public BillService(BillRepository billRepository, TransactionRepository transactionRepository) {
+        this.billRepository = billRepository;
+        this.transactionRepository = transactionRepository;
+    }
 
     @Transactional
     public BillDto createBill(BillDto dto, Long userId) {

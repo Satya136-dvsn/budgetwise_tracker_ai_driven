@@ -5,7 +5,7 @@ import com.budgetwise.dto.PortfolioSummaryDto;
 import com.budgetwise.security.UserPrincipal;
 import com.budgetwise.service.InvestmentService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,10 +16,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/investments")
-@RequiredArgsConstructor
 public class InvestmentController {
 
     private final InvestmentService investmentService;
+
+    public InvestmentController(InvestmentService investmentService) {
+        this.investmentService = investmentService;
+    }
 
     @PostMapping
     public ResponseEntity<InvestmentDto> createInvestment(

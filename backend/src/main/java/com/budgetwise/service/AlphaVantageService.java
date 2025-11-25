@@ -3,7 +3,7 @@ package com.budgetwise.service;
 import com.budgetwise.config.ExternalApiConfig;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import lombok.RequiredArgsConstructor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class AlphaVantageService {
 
     private static final Logger logger = LoggerFactory.getLogger(AlphaVantageService.class);
@@ -22,6 +21,11 @@ public class AlphaVantageService {
     private final ExternalApiConfig apiConfig;
     private final RestTemplate restTemplate;
     private final Gson gson = new Gson();
+
+    public AlphaVantageService(ExternalApiConfig apiConfig, RestTemplate restTemplate) {
+        this.apiConfig = apiConfig;
+        this.restTemplate = restTemplate;
+    }
 
     /**
      * Get current stock price

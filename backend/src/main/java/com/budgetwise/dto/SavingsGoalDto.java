@@ -2,10 +2,6 @@ package com.budgetwise.dto;
 
 import com.budgetwise.entity.SavingsGoal;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

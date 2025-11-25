@@ -6,7 +6,6 @@ import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.WriteMode;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -18,12 +17,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
-@RequiredArgsConstructor
 public class DropboxService {
 
     private static final Logger logger = LoggerFactory.getLogger(DropboxService.class);
 
     private final ExternalApiConfig apiConfig;
+
+    public DropboxService(ExternalApiConfig apiConfig) {
+        this.apiConfig = apiConfig;
+   }
 
     private DbxClientV2 getDropboxClient() {
         DbxRequestConfig config = DbxRequestConfig.newBuilder("budgetwise/1.0").build();

@@ -5,7 +5,6 @@ import com.budgetwise.entity.AuditLog;
 import com.budgetwise.entity.User;
 import com.budgetwise.security.UserPrincipal;
 import com.budgetwise.service.AdminService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,91 +15,94 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin")
-@RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
-    private final AdminService adminService;
+        private final AdminService adminService;
 
-    @GetMapping("/stats")
-    public ResponseEntity<AdminStatsDto> getSystemStats(
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        AdminStatsDto stats = adminService.getSystemStats();
+        public AdminController(AdminService adminService) {
+                this.adminService = adminService;
+        }
 
-        // Log admin action
-        adminService.logAdminAction(
-                userPrincipal.getId(),
-                "STATS_VIEW",
-                null,
-                "System",
-                "Viewed system statistics",
-                "127.0.0.1");
+        @GetMapping("/stats")
+        public ResponseEntity<AdminStatsDto> getSystemStats(
+                        @AuthenticationPrincipal UserPrincipal userPrincipal) {
+                AdminStatsDto stats = adminService.getSystemStats();
 
-        return ResponseEntity.ok(stats);
-    }
+                // Log admin action
+                adminService.logAdminAction(
+                                userPrincipal.getId(),
+                                "STATS_VIEW",
+                                null,
+                                "System",
+                                "Viewed system statistics",
+                                "127.0.0.1");
 
-    @GetMapping("/users")
-    public ResponseEntity<Page<User>> getAllUsers(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<User> users = adminService.getAllUsers(pageable);
+                return ResponseEntity.ok(stats);
+        }
 
-        // Log admin action
-        adminService.logAdminAction(
-                userPrincipal.getId(),
-                "USER_LIST",
-                null,
-                "User",
-                "Listed all users (page: " + page + ", size: " + size + ")",
-                "127.0.0.1");
+        @GetMapping("/users")
+        public ResponseEntity<Page<User>> getAllUsers(
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "20") int size,
+                        @AuthenticationPrincipal UserPrincipal userPrincipal) {
+                Pageable pageable = PageRequest.of(page, size);
+                Page<User> users = adminService.getAllUsers(pageable);
 
-        return ResponseEntity.ok(users);
-    }
+                // Log admin action
+                adminService.logAdminAction(
+                                userPrincipal.getId(),
+                                "USER_LIST",
+                                null,
+                                "User",
+                                "Listed all users (page: " + page + ", size: " + size + ")",
+                                "127.0.0.1");
 
-    @GetMapping("/audit-logs")
-    public ResponseEntity<Page<AuditLog>> getAuditLogs(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<AuditLog> logs = adminService.getAuditLogs(pageable);
-        return ResponseEntity.ok(logs);
-    }
+                return ResponseEntity.ok(users);
+        }
 
-    @PutMapping("/users/{id}/status")
-    public ResponseEntity<Void> updateUserStatus(
-            @PathVariable Long id,
-            @RequestBody java.util.Map<String, Boolean> statusUpdate,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Boolean enabled = statusUpdate.get("enabled");
-        adminService.updateUserStatus(id, enabled);
+        @GetMapping("/audit-logs")
+        public ResponseEntity<Page<AuditLog>> getAuditLogs(
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "50") int size) {
+                Pageable pageable = PageRequest.of(page, size);
+                Page<AuditLog> logs = adminService.getAuditLogs(pageable);
+                return ResponseEntity.ok(logs);
+        }
 
-        adminService.logAdminAction(
-                userPrincipal.getId(),
-                "USER_UPDATE",
-                id,
-                "User",
-                "Updated user status to: " + (enabled ? "Active" : "Inactive"),
-                "127.0.0.1");
+        @PutMapping("/users/{id}/status")
+        public ResponseEntity<Void> updateUserStatus(
+                        @PathVariable Long id,
+                        @RequestBody java.util.Map<String, Boolean> statusUpdate,
+                        @AuthenticationPrincipal UserPrincipal userPrincipal) {
+                Boolean enabled = statusUpdate.get("enabled");
+                adminService.updateUserStatus(id, enabled);
 
-        return ResponseEntity.ok().build();
-    }
+                adminService.logAdminAction(
+                                userPrincipal.getId(),
+                                "USER_UPDATE",
+                                id,
+                                "User",
+                                "Updated user status to: " + (enabled ? "Active" : "Inactive"),
+                                "127.0.0.1");
 
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<Void> deleteUser(
-            @PathVariable Long id,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        adminService.deleteUser(id);
+                return ResponseEntity.ok().build();
+        }
 
-        adminService.logAdminAction(
-                userPrincipal.getId(),
-                "USER_DELETE",
-                id,
-                "User",
-                "Deleted user",
-                "127.0.0.1");
+        @DeleteMapping("/users/{id}")
+        public ResponseEntity<Void> deleteUser(
+                        @PathVariable Long id,
+                        @AuthenticationPrincipal UserPrincipal userPrincipal) {
+                adminService.deleteUser(id);
 
-        return ResponseEntity.ok().build();
-    }
+                adminService.logAdminAction(
+                                userPrincipal.getId(),
+                                "USER_DELETE",
+                                id,
+                                "User",
+                                "Deleted user",
+                                "127.0.0.1");
+
+                return ResponseEntity.ok().build();
+        }
 }

@@ -4,7 +4,7 @@ import com.budgetwise.dto.AdminStatsDto;
 import com.budgetwise.entity.AuditLog;
 import com.budgetwise.entity.User;
 import com.budgetwise.repository.*;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class AdminService {
 
     private final UserRepository userRepository;
@@ -30,6 +29,27 @@ public class AdminService {
     private final LikeRepository likeRepository;
     private final ScheduledReportRepository scheduledReportRepository;
     private final UserProfileRepository userProfileRepository;
+
+    public AdminService(UserRepository userRepository, TransactionRepository transactionRepository,
+            CategoryRepository categoryRepository, AuditLogRepository auditLogRepository,
+            BudgetRepository budgetRepository, SavingsGoalRepository savingsGoalRepository,
+            BillRepository billRepository, InvestmentRepository investmentRepository, PostRepository postRepository,
+            CommentRepository commentRepository, LikeRepository likeRepository,
+            ScheduledReportRepository scheduledReportRepository, UserProfileRepository userProfileRepository) {
+        this.userRepository = userRepository;
+        this.transactionRepository = transactionRepository;
+        this.categoryRepository = categoryRepository;
+        this.auditLogRepository = auditLogRepository;
+        this.budgetRepository = budgetRepository;
+        this.savingsGoalRepository = savingsGoalRepository;
+        this.billRepository = billRepository;
+        this.investmentRepository = investmentRepository;
+        this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
+        this.likeRepository = likeRepository;
+        this.scheduledReportRepository = scheduledReportRepository;
+        this.userProfileRepository = userProfileRepository;
+    }
 
     public AdminStatsDto getSystemStats() {
         long totalUsers = userRepository.count();

@@ -11,7 +11,7 @@ import com.budgetwise.repository.CategoryRepository;
 import com.budgetwise.repository.SavingsGoalRepository;
 import com.budgetwise.repository.ScheduledReportRepository;
 import com.budgetwise.repository.TransactionRepository;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class ReportService {
 
     private final TransactionRepository transactionRepository;
@@ -32,6 +31,16 @@ public class ReportService {
     private final SavingsGoalRepository savingsGoalRepository;
     private final ScheduledReportRepository scheduledReportRepository;
     private final CategoryRepository categoryRepository;
+
+    public ReportService(TransactionRepository transactionRepository, BudgetRepository budgetRepository,
+            SavingsGoalRepository savingsGoalRepository, ScheduledReportRepository scheduledReportRepository,
+            CategoryRepository categoryRepository) {
+        this.transactionRepository = transactionRepository;
+        this.budgetRepository = budgetRepository;
+        this.savingsGoalRepository = savingsGoalRepository;
+        this.scheduledReportRepository = scheduledReportRepository;
+        this.categoryRepository = categoryRepository;
+    }
 
     @Transactional(readOnly = true)
     public byte[] generateTemplateReport(Long userId, int templateId) {

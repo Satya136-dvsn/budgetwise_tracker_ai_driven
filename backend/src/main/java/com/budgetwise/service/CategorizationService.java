@@ -3,16 +3,18 @@ package com.budgetwise.service;
 import com.budgetwise.dto.CategorizationSuggestionDto;
 import com.budgetwise.entity.Category;
 import com.budgetwise.repository.CategoryRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor
 public class CategorizationService {
 
     private final CategoryRepository categoryRepository;
+
+    public CategorizationService(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+   }
 
     // Keyword dictionary for categorization
     private static final Map<String, List<String>> CATEGORY_KEYWORDS = new HashMap<>() {{

@@ -165,9 +165,23 @@ const DashboardLayout = () => {
         }}
       >
         {sidebarOpen && (
-          <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 700 }}>
-            BudgetWise
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <img
+              src="/logo.png"
+              alt="BudgetWise Logo"
+              style={{ width: 32, height: 32, objectFit: 'contain' }}
+            />
+            <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 700 }}>
+              BudgetWise
+            </Typography>
+          </Box>
+        )}
+        {!sidebarOpen && (
+          <img
+            src="/logo.png"
+            alt="BudgetWise Logo"
+            style={{ width: 32, height: 32, objectFit: 'contain' }}
+          />
         )}
         {!isMobile && (
           <IconButton onClick={handleDrawerToggle} size="small">

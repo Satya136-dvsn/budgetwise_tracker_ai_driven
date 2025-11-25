@@ -4,7 +4,7 @@ import com.budgetwise.dto.BillDto;
 import com.budgetwise.security.UserPrincipal;
 import com.budgetwise.service.BillService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +16,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/bills")
-@RequiredArgsConstructor
 public class BillController {
 
     private final BillService billService;
+
+    public BillController(BillService billService) {
+        this.billService = billService;
+    }
 
     @PostMapping
     public ResponseEntity<BillDto> createBill(

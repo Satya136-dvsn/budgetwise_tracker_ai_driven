@@ -5,7 +5,7 @@ import com.budgetwise.security.UserPrincipal;
 import com.budgetwise.service.BudgetAdvisorService;
 import com.budgetwise.service.CategorizationService;
 import com.budgetwise.service.PredictionService;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -14,12 +14,18 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/ai")
-@RequiredArgsConstructor
 public class AIController {
 
     private final PredictionService predictionService;
     private final BudgetAdvisorService budgetAdvisorService;
     private final CategorizationService categorizationService;
+
+    public AIController(PredictionService predictionService, BudgetAdvisorService budgetAdvisorService,
+            CategorizationService categorizationService) {
+        this.predictionService = predictionService;
+        this.budgetAdvisorService = budgetAdvisorService;
+        this.categorizationService = categorizationService;
+    }
 
     @GetMapping("/predictions")
     public ResponseEntity<List<PredictionDto>> getPredictions(

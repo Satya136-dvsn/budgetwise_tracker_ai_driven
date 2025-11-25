@@ -2,7 +2,6 @@ package com.budgetwise.service;
 
 import com.budgetwise.dto.CategoryBreakdownDto;
 import com.budgetwise.dto.MonthlyTrendDto;
-import lombok.RequiredArgsConstructor;
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.PieStyler;
 import org.knowm.xchart.style.Styler;

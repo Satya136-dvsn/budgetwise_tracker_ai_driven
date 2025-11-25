@@ -5,7 +5,6 @@ import com.budgetwise.dto.SavingsGoalDto;
 import com.budgetwise.security.UserPrincipal;
 import com.budgetwise.service.SavingsGoalService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,10 +14,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/savings-goals")
-@RequiredArgsConstructor
 public class SavingsGoalController {
 
     private final SavingsGoalService savingsGoalService;
+
+    public SavingsGoalController(SavingsGoalService savingsGoalService) {
+        this.savingsGoalService = savingsGoalService;
+    }
 
     @PostMapping
     public ResponseEntity<SavingsGoalDto> createGoal(

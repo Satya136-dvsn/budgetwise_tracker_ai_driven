@@ -5,7 +5,6 @@ import com.budgetwise.dto.PortfolioSummaryDto;
 import com.budgetwise.entity.Investment;
 import com.budgetwise.exception.ResourceNotFoundException;
 import com.budgetwise.repository.InvestmentRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,10 +16,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class InvestmentService {
 
     private final InvestmentRepository investmentRepository;
+
+    public InvestmentService(InvestmentRepository investmentRepository) {
+        this.investmentRepository = investmentRepository;
+   }
 
     @Transactional
     public InvestmentDto createInvestment(InvestmentDto dto, Long userId) {

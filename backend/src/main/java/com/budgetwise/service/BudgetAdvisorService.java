@@ -5,7 +5,6 @@ import com.budgetwise.entity.Transaction;
 import com.budgetwise.entity.UserProfile;
 import com.budgetwise.repository.TransactionRepository;
 import com.budgetwise.repository.UserProfileRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,11 +16,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class BudgetAdvisorService {
 
     private final TransactionRepository transactionRepository;
     private final UserProfileRepository userProfileRepository;
+
+    public BudgetAdvisorService(TransactionRepository transactionRepository, UserProfileRepository userProfileRepository) {
+        this.transactionRepository = transactionRepository;
+        this.userProfileRepository = userProfileRepository;
+   }
 
     public List<BudgetAdviceDto> getPersonalizedAdvice(Long userId) {
         // Get current month transactions

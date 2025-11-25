@@ -6,7 +6,7 @@ import com.budgetwise.dto.MonthlyTrendDto;
 import com.budgetwise.dto.TransactionDto;
 import com.budgetwise.security.UserPrincipal;
 import com.budgetwise.service.DashboardService;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +15,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/dashboard")
-@RequiredArgsConstructor
 public class DashboardController {
 
     private final DashboardService dashboardService;
+
+    public DashboardController(DashboardService dashboardService) {
+        this.dashboardService = dashboardService;
+    }
 
     @GetMapping("/summary")
     public ResponseEntity<DashboardSummaryDto> getDashboardSummary(
@@ -50,4 +53,5 @@ public class DashboardController {
         List<TransactionDto> transactions = dashboardService.getRecentTransactions(userPrincipal.getId(), limit);
         return ResponseEntity.ok(transactions);
     }
+
 }

@@ -17,7 +17,6 @@ import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.properties.VerticalAlignment;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.awt.image.BufferedImage;
@@ -28,12 +27,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class PdfReportGenerator {
 
     private final ChartGeneratorService chartGenerator;
     private final DashboardService dashboardService;
     private final CategoryRepository categoryRepository;
+
+    public PdfReportGenerator(ChartGeneratorService chartGenerator, DashboardService dashboardService,
+            CategoryRepository categoryRepository) {
+        this.chartGenerator = chartGenerator;
+        this.dashboardService = dashboardService;
+        this.categoryRepository = categoryRepository;
+    }
 
     public byte[] generateDashboardPdf(Long userId, List<Transaction> transactions, List<Budget> budgets,
             List<SavingsGoal> goals) {

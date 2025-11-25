@@ -2,7 +2,7 @@ package com.budgetwise.controller;
 
 import com.budgetwise.security.UserPrincipal;
 import com.budgetwise.service.ExportService;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -14,12 +14,15 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/export")
-@RequiredArgsConstructor
 public class ExportController {
 
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ExportController.class);
 
     private final ExportService exportService;
+
+    public ExportController(ExportService exportService) {
+        this.exportService = exportService;
+    }
 
     @GetMapping("/transactions")
     public ResponseEntity<byte[]> exportTransactions(

@@ -5,7 +5,6 @@ import com.budgetwise.dto.SavingsGoalDto;
 import com.budgetwise.entity.SavingsGoal;
 import com.budgetwise.exception.ResourceNotFoundException;
 import com.budgetwise.repository.SavingsGoalRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +17,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class SavingsGoalService {
 
     private final SavingsGoalRepository savingsGoalRepository;
     private final com.budgetwise.repository.TransactionRepository transactionRepository;
+
+    public SavingsGoalService(SavingsGoalRepository savingsGoalRepository,
+            com.budgetwise.repository.TransactionRepository transactionRepository) {
+        this.savingsGoalRepository = savingsGoalRepository;
+        this.transactionRepository = transactionRepository;
+    }
 
     @Transactional
     public SavingsGoalDto createGoal(SavingsGoalDto dto, Long userId) {

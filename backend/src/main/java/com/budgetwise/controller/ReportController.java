@@ -3,7 +3,7 @@ package com.budgetwise.controller;
 import com.budgetwise.dto.ReportDto;
 import com.budgetwise.security.UserPrincipal;
 import com.budgetwise.service.ReportService;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +14,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/reports")
-@RequiredArgsConstructor
 public class ReportController {
 
     private final ReportService reportService;
     private final com.budgetwise.service.ExportService exportService;
+
+    public ReportController(ReportService reportService, com.budgetwise.service.ExportService exportService) {
+        this.reportService = reportService;
+        this.exportService = exportService;
+    }
 
     @PostMapping("/generate/{templateId}")
     public ResponseEntity<byte[]> generateTemplateReport(

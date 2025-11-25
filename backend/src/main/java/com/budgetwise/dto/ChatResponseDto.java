@@ -1,10 +1,5 @@
 package com.budgetwise.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 public class ChatResponseDto {
     private String response;
     private String conversationId;

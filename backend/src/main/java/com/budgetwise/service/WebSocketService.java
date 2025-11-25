@@ -1,14 +1,16 @@
 package com.budgetwise.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class WebSocketService {
 
     private final SimpMessagingTemplate messagingTemplate;
+
+    public WebSocketService(SimpMessagingTemplate messagingTemplate) {
+        this.messagingTemplate = messagingTemplate;
+   }
 
     public void sendDashboardUpdate(Long userId) {
         messagingTemplate.convertAndSend("/topic/user/" + userId + "/dashboard", "refresh");

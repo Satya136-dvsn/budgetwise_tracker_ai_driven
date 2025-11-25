@@ -4,7 +4,7 @@ import com.budgetwise.dto.BudgetDto;
 import com.budgetwise.security.UserPrincipal;
 import com.budgetwise.service.BudgetService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,10 +14,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/budgets")
-@RequiredArgsConstructor
 public class BudgetController {
 
     private final BudgetService budgetService;
+
+    public BudgetController(BudgetService budgetService) {
+        this.budgetService = budgetService;
+    }
 
     @PostMapping
     public ResponseEntity<BudgetDto> createBudget(
