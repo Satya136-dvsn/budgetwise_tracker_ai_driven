@@ -29,7 +29,7 @@ public class Budget {
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
+    @Column(name = "budget_period", length = 20)
     private BudgetPeriod period = BudgetPeriod.MONTHLY;
 
     @Column(name = "start_date", nullable = false)

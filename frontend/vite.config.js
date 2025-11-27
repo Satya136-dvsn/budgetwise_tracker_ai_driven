@@ -11,12 +11,20 @@ export default defineConfig({
       '/api': {
         target: 'http://127.0.0.1:8080',
         changeOrigin: true,
+        secure: false,
       },
       '/ws': {
         target: 'http://127.0.0.1:8080',
-        changeOrigin: true,
         ws: true,
-      }
-    }
-  }
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/setupTests.js',
+    css: true,
+  },
 })

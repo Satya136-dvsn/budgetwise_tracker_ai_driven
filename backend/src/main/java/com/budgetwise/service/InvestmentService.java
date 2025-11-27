@@ -19,10 +19,12 @@ import java.util.stream.Collectors;
 public class InvestmentService {
 
     private final InvestmentRepository investmentRepository;
+    private final StockPriceService stockPriceService;
 
-    public InvestmentService(InvestmentRepository investmentRepository) {
+    public InvestmentService(InvestmentRepository investmentRepository, StockPriceService stockPriceService) {
         this.investmentRepository = investmentRepository;
-   }
+        this.stockPriceService = stockPriceService;
+    }
 
     @Transactional
     public InvestmentDto createInvestment(InvestmentDto dto, Long userId) {
@@ -32,7 +34,19 @@ public class InvestmentService {
         investment.setType(dto.getType());
         investment.setQuantity(dto.getQuantity());
         investment.setBuyPrice(dto.getBuyPrice());
-        investment.setCurrentPrice(dto.getCurrentPrice() != null ? dto.getCurrentPrice() : dto.getBuyPrice());
+
+        // Try to fetch current price
+        BigDecimal currentPrice = null;
+        if (dto.getSymbol() != null && !dto.getSymbol().isEmpty()) {
+            try {
+                currentPrice = stockPriceService.getCurrentPrice(dto.getSymbol());
+            } catch (Exception e) {
+                // Ignore error, use buy price
+            }
+        }
+
+        investment.setCurrentPrice(currentPrice != null ? currentPrice
+                : (dto.getCurrentPrice() != null ? dto.getCurrentPrice() : dto.getBuyPrice()));
         investment.setPurchaseDate(dto.getPurchaseDate());
         investment.setSymbol(dto.getSymbol());
         investment.setNotes(dto.getNotes());
@@ -81,6 +95,22 @@ public class InvestmentService {
         investment.setCurrentPrice(currentPrice);
         Investment updated = investmentRepository.save(investment);
         return mapToDto(updated);
+    }
+
+    @Transactional
+    public InvestmentDto refreshPrice(Long id, Long userId) {
+        Investment investment = investmentRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Investment not found"));
+
+        if (investment.getSymbol() != null && !investment.getSymbol().isEmpty()) {
+            BigDecimal newPrice = stockPriceService.getCurrentPrice(investment.getSymbol());
+            if (newPrice != null) {
+                investment.setCurrentPrice(newPrice);
+                Investment updated = investmentRepository.save(investment);
+                return mapToDto(updated);
+            }
+        }
+        return mapToDto(investment);
     }
 
     @Transactional

@@ -244,10 +244,12 @@ const AIChat = () => {
             <Paper
                 elevation={3}
                 sx={{
-                    p: 2,
+                    p: '10px 16px',
                     display: 'flex',
+                    alignItems: 'center',
                     gap: 1,
-                    borderRadius: 2,
+                    borderRadius: 4,
+                    bgcolor: 'background.paper',
                 }}
             >
                 <TextField
@@ -259,10 +261,13 @@ const AIChat = () => {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
                     disabled={loading}
-                    variant="outlined"
+                    variant="standard"
+                    InputProps={{
+                        disableUnderline: true,
+                    }}
                     sx={{
-                        '& .MuiOutlinedInput-root': {
-                            borderRadius: 2,
+                        '& .MuiInputBase-root': {
+                            padding: '8px 0',
                         },
                     }}
                 />
@@ -271,17 +276,18 @@ const AIChat = () => {
                     onClick={handleSend}
                     disabled={!input.trim() || loading}
                     sx={{
-                        bgcolor: 'primary.main',
-                        color: 'white',
+                        width: 40,
+                        height: 40,
+                        bgcolor: input.trim() ? 'primary.main' : 'action.disabledBackground',
+                        color: input.trim() ? 'white' : 'text.disabled',
+                        transition: 'all 0.2s',
                         '&:hover': {
-                            bgcolor: 'primary.dark',
-                        },
-                        '&.Mui-disabled': {
-                            bgcolor: 'action.disabledBackground',
+                            bgcolor: input.trim() ? 'primary.dark' : 'action.disabledBackground',
+                            transform: input.trim() ? 'scale(1.05)' : 'none',
                         },
                     }}
                 >
-                    <SendIcon />
+                    <SendIcon fontSize="small" />
                 </IconButton>
             </Paper>
         </Container>

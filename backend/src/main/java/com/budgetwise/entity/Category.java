@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "categories", 
-       uniqueConstraints = @UniqueConstraint(columnNames = {"name", "user_id", "type"}))
+@Table(name = "categories", uniqueConstraints = @UniqueConstraint(columnNames = { "name", "user_id", "category_type" }))
 public class Category {
 
     @Id
@@ -16,7 +15,7 @@ public class Category {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, length = 20)
+    @Column(name = "category_type", nullable = false, length = 20)
     private CategoryType type;
 
     @Column(name = "icon", length = 50)

@@ -21,6 +21,7 @@
     "axios": "^1.6.2",
     "date-fns": "^3.0.6",
     "framer-motion": "^10.16.16",
+    "html2canvas": "^1.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.49.2",
@@ -38,6 +39,7 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "jsdom": "^27.2.0",
     "vite": "^5.0.8",
     "vitest": "^1.0.4"
   }

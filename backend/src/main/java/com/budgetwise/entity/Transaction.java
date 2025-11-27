@@ -26,7 +26,7 @@ public class Transaction {
     private Long categoryId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(name = "transaction_type", nullable = false, length = 20)
     private TransactionType type;
 
     @Column(nullable = false, precision = 15, scale = 2)

@@ -23,45 +23,52 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
+@TestPropertySource(locations = "classpath:application-test.properties")
 public class DashboardControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @MockBean
-    private DashboardService dashboardService;
+        @MockBean
+        private DashboardService dashboardService;
 
-    @BeforeEach
-    public void setup() {
-        // Setup UserPrincipal for authentication
-        UserPrincipal userPrincipal = new UserPrincipal(
-                1L,
-                "test@example.com",
-                "test@example.com",
-                "password",
-                "USER",
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+        @BeforeEach
+        public void setup() {
+                // Setup UserPrincipal for authentication
+                UserPrincipal userPrincipal = new UserPrincipal(
+                                1L,
+                                "test@example.com",
+                                "test@example.com",
+                                "password",
+                                "USER",
+                                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 
-        Authentication auth = new UsernamePasswordAuthenticationToken(userPrincipal, null,
-                userPrincipal.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
+                Authentication auth = new UsernamePasswordAuthenticationToken(userPrincipal, null,
+                                userPrincipal.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(auth);
+        }
 
-    @Test
-    public void testGetDashboardSummary_Success() throws Exception {
-        // Mock service response
-        DashboardSummaryDto summaryDto = DashboardSummaryDto.builder()
-                .totalIncome(BigDecimal.valueOf(5000))
-                .totalExpenses(BigDecimal.valueOf(2000))
-                .balance(BigDecimal.valueOf(3000))
-                .build();
+        @Test
+        public void testGetDashboardSummary_Success() throws Exception {
+                // Mock service response
+                DashboardSummaryDto summaryDto = DashboardSummaryDto.builder()
+                                .totalIncome(BigDecimal.valueOf(5000))
+                                .totalExpenses(BigDecimal.valueOf(2000))
+                                .balance(BigDecimal.valueOf(3000))
+                                .build();
 
-        when(dashboardService.getDashboardSummary(anyLong())).thenReturn(summaryDto);
+                when(dashboardService.getDashboardSummary(anyLong())).thenReturn(summaryDto);
 
-        // Perform request
-        mockMvc.perform(get("/api/dashboard/summary"))
-                .andExpect(status().isOk());
-    }
+                // Perform request
+                mockMvc.perform(get("/api/dashboard/summary"))
+                                .andExpect(status().isOk());
+        }
 }

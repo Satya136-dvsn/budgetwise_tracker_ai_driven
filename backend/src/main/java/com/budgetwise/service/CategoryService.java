@@ -5,7 +5,8 @@ import com.budgetwise.entity.Category;
 import com.budgetwise.entity.User;
 import com.budgetwise.repository.CategoryRepository;
 import com.budgetwise.repository.UserRepository;
-import jakarta.annotation.PostConstruct;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,10 @@ public class CategoryService {
     /**
      * Seed system categories on application startup
      */
-    @PostConstruct
+    /**
+     * Seed system categories on application startup
+     */
+    @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void seedSystemCategories() {
         List<Category> existingSystemCategories = categoryRepository.findByIsSystemTrue();

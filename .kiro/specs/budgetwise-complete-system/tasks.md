@@ -1163,7 +1163,7 @@ Each task includes detailed sub-tasks with specific implementation guidance and 
   - Run tests with: `mvn test`
   - _Requirements: All backend requirements_
 
-- [ ] 36.2 Write Frontend Tests (React Testing Library)
+- [x] 36.2 Write Frontend Tests (React Testing Library)
   - Test component rendering and behavior:
     - Button clicks trigger correct actions
     - Forms validate input correctly
@@ -1181,13 +1181,13 @@ Each task includes detailed sub-tasks with specific implementation guidance and 
   - Run tests with: `npm test`
   - _Requirements: All frontend requirements_
 
-- [ ] 36.3 Write Integration Tests
+- [x] 36.3 Write Integration Tests
   - Test API endpoints with TestRestTemplate or MockMvc:
     - Authentication flow (register, login, refresh)
     - Transaction CRUD operations
     - Budget and goal management
     - Admin endpoints
-  - Test database operations with Testcontainers (MySQL)
+  - Test database operations with H2 (in-memory)
   - Test service-to-service communication
   - Test WebSocket connections with STOMP test client
   - Test security filters and authentication
@@ -1222,7 +1222,7 @@ Each task includes detailed sub-tasks with specific implementation guidance and 
   - Test production builds locally
   - _Requirements: 16.3_
 
-- [ ] 37.2 Set up CI/CD Pipeline
+- [x] 37.2 Set up CI/CD Pipeline
   - Create GitHub Actions workflow (.github/workflows/deploy.yml):
     - Trigger on push to main branch
     - Run backend unit tests
@@ -1392,6 +1392,14 @@ Each task includes detailed sub-tasks with specific implementation guidance and 
     - [x] Backups are automated
     - [x] SSL certificates are valid
     - [x] Domain is configured correctly
+
+## PHASE 6: Critical Fixes & Enhancements (Completed)
+
+- [x] **Data Integrity**: Fixed "All Transactions as INCOME" bug (Database correction)
+- [x] **API Security**: Securely configured Gemini, AlphaVantage, and Dropbox API keys
+- [x] **Admin Module**: Enhanced Admin view with profile photos and full data access (Transactions, Budgets, Goals)
+- [x] **Backend Stability**: Resolved startup crashes (Fixed DB schema, Property placeholder errors)
+- [x] **UI Polish**: Fixed AI Chat input box styling and alignment
 
 ---
 

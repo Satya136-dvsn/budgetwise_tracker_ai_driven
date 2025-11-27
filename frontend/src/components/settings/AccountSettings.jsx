@@ -13,7 +13,7 @@ import {
     Alert,
     CircularProgress
 } from '@mui/material';
-import { Download, DeleteForever, Warning } from '@mui/icons-material';
+import { Download, DeleteForever, Warning, CloudUpload } from '@mui/icons-material';
 import ProfessionalCard from '../ui/ProfessionalCard';
 import userService from '../../services/userService';
 import { useAuth } from '../../context/AuthContext';
@@ -91,8 +91,26 @@ const AccountSettings = () => {
                         startIcon={exportLoading ? <CircularProgress size={20} /> : <Download />}
                         onClick={handleExportData}
                         disabled={exportLoading}
+                        sx={{ mr: 2 }}
                     >
                         {exportLoading ? 'Exporting...' : 'Download All Data (JSON)'}
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        startIcon={<CloudUpload />}
+                        onClick={async () => {
+                            try {
+                                alert("Starting Cloud Backup...");
+                                await userService.backupToCloud();
+                                alert("Backup uploaded to Dropbox successfully!");
+                            } catch (e) {
+                                console.error(e);
+                                alert("Backup failed: " + (e.response?.data?.error || e.message));
+                            }
+                        }}
+                    >
+                        Backup to Dropbox
                     </Button>
                 </Box>
             </ProfessionalCard>

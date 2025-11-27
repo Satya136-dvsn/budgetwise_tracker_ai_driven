@@ -26,7 +26,7 @@ public class Investment {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
+    @Column(name = "investment_type", nullable = false, length = 50)
     private InvestmentType type;
 
     @Column(nullable = false, precision = 15, scale = 8)

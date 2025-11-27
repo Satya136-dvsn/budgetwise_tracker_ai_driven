@@ -17,13 +17,13 @@ public class ExternalApiConfig {
     @Value("${gemini.api.url}")
     private String geminiApiUrl;
 
-    @Value("${alphavantage.api.key}")
+    @Value("${alphavantage.api.key:demo}")
     private String alphaVantageApiKey;
 
-    @Value("${alphavantage.api.url}")
+    @Value("${alphavantage.api.url:https://www.alphavantage.co/query}")
     private String alphaVantageApiUrl;
 
-    @Value("${dropbox.api.key}")
+    @Value("${dropbox.api.key:dummy}")
     private String dropboxApiKey;
 
     @Bean

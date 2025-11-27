@@ -1,0 +1,75 @@
+# Application Configuration
+spring.application.name=budgetwise-backend
+
+# External API Configurations
+gemini.api.key=YOUR_GEMINI_API_KEY_HERE
+gemini.api.url=https://generativelanguage.googleapis.com/v1beta
+alphavantage.api.key=YOUR_ALPHAVANTAGE_API_KEY_HERE
+alphavantage.api.url=https://www.alphavantage.co/query
+dropbox.api.key=YOUR_DROPBOX_ACCESS_TOKEN_HERE
+server.port=8080
+
+# MySQL Database Configuration
+spring.datasource.url=jdbc:mysql://localhost:3307/budgetwise?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+
+# Redis Configuration (Local -> Docker)
+spring.data.redis.host=localhost
+spring.data.redis.port=6379
+# spring.cache.type=simple
+# spring.cache.cache-names=dashboard_summary,dashboard_trends,dashboard_breakdown,categories,custom_categories
+spring.datasource.username=root
+spring.datasource.password=YOUR_DB_PASSWORD_HERE
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# JPA/Hibernate Configuration
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+spring.jpa.properties.hibernate.format_sql=true
+
+# HikariCP Connection Pool Configuration
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.connection-timeout=30000
+spring.datasource.hikari.idle-timeout=600000
+
+# JWT Configuration
+jwt.secret=YOUR_JWT_SECRET_KEY_HERE
+jwt.expiration=3600000
+jwt.refresh-expiration=604800000
+
+# Logging Configuration
+logging.level.root=INFO
+logging.level.com.budgetwise=DEBUG
+logging.level.org.springframework.security=DEBUG
+logging.level.org.hibernate.SQL=DEBUG
+
+# Actuator Configuration
+management.endpoints.web.exposure.include=health,info,metrics
+management.endpoint.health.show-details=when-authorized
+
+# CORS Configuration (for development)
+cors.allowed-origins=http://localhost:3000,http://localhost:3001,http://localhost:5173
+
+# File upload and request size limits (for chart export with Base64 images)
+spring.servlet.multipart.max-file-size=50MB
+spring.servlet.multipart.max-request-size=50MB
+spring.codec.max-in-memory-size=50MB
+server.tomcat.max-http-form-post-size=50MB
+
+# Session timeout
+server.servlet.session.timeout=30m
+
+# Redis Configuration (optional - for caching)
+# Uncomment below lines if Redis is installed and running
+#spring.data.redis.host=localhost
+#spring.data.redis.port=6379
+#spring.cache.type=redis
+#spring.cache.redis.time-to-live=300000
+
+# Use simple cache (in-memory) when Redis is not available
+spring.cache.type=simple
+spring.cache.cache-names=dashboard_summary,dashboard_trends,dashboard_breakdown,categories,custom_categories
+
+# Disable Redis Health Check (since we are using simple cache locally)
+management.health.redis.enabled=false

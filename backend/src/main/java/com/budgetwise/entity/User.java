@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users", indexes = {
-    @Index(name = "idx_email", columnList = "email"),
-    @Index(name = "idx_username", columnList = "username")
+        @Index(name = "idx_email", columnList = "email"),
+        @Index(name = "idx_username", columnList = "username")
 })
 public class User {
 
@@ -27,7 +27,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(name = "user_role", nullable = false, length = 20)
     private Role role = Role.USER;
 
     @Column(name = "is_active")
@@ -47,9 +47,11 @@ public class User {
     }
 
     // Constructors
-    public User() {}
+    public User() {
+    }
 
-    public User(Long id, String username, String email, String password, Role role, Boolean isActive, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public User(Long id, String username, String email, String password, Role role, Boolean isActive,
+            LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.username = username;
         this.email = email;

@@ -72,6 +72,14 @@ public class InvestmentController {
         return ResponseEntity.ok(updated);
     }
 
+    @PostMapping("/{id}/refresh")
+    public ResponseEntity<InvestmentDto> refreshPrice(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        InvestmentDto updated = investmentService.refreshPrice(id, userPrincipal.getId());
+        return ResponseEntity.ok(updated);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteInvestment(
             @PathVariable Long id,

@@ -36,6 +36,10 @@ const userService = {
         });
     },
 
+    backupToCloud: async () => {
+        return api.post('/backup/upload');
+    },
+
     deleteAccount: async (password) => {
         return api.delete('/gdpr/account', {
             data: { password }

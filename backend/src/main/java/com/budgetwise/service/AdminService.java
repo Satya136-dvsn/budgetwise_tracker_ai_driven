@@ -161,12 +161,17 @@ public class AdminService {
         userInfo.put("createdAt", user.getCreatedAt());
         profile.put("user", userInfo);
 
-        // User profile
+        // User profile (including avatar/photo)
         com.budgetwise.entity.UserProfile userProfile = userProfileRepository.findByUserId(userId).orElse(null);
         if (userProfile != null) {
             java.util.Map<String, Object> profileInfo = new java.util.HashMap<>();
+            profileInfo.put("firstName", userProfile.getFirstName());
+            profileInfo.put("lastName", userProfile.getLastName());
             profileInfo.put("monthlyIncome", userProfile.getMonthlyIncome());
             profileInfo.put("savingsTarget", userProfile.getSavingsTarget());
+            profileInfo.put("avatar", userProfile.getAvatar()); // Profile photo included for admin view
+            profileInfo.put("currency", userProfile.getCurrency());
+            profileInfo.put("timezone", userProfile.getTimezone());
             profile.put("profile", profileInfo);
         }
 
@@ -190,26 +195,57 @@ public class AdminService {
         financialSummary.put("netBalance", totalIncome.subtract(totalExpenses));
         profile.put("financialSummary", financialSummary);
 
-        // Counts only (avoid complex entity serialization)
-        profile.put("budgetCount", budgetRepository.findByUserId(userId).size());
-        profile.put("savingsGoalCount", savingsGoalRepository.findByUserId(userId).size());
-        profile.put("totalTransactions", allTransactions.size());
-        profile.put("billCount", billRepository.findByUserIdOrderByNextDueDateAsc(userId).size());
-        profile.put("investmentCount", investmentRepository.findByUserIdOrderByPurchaseDateDesc(userId).size());
-
-        // Recent transactions (just 5, simple mapping)
-        java.util.List<java.util.Map<String, Object>> recentTxns = new java.util.ArrayList<>();
-        for (int i = 0; i < Math.min(5, allTransactions.size()); i++) {
-            com.budgetwise.entity.Transaction txn = allTransactions.get(i);
+        // Full transactions list (all of them, not just 5)
+        java.util.List<java.util.Map<String, Object>> transactionsList = new java.util.ArrayList<>();
+        for (com.budgetwise.entity.Transaction txn : allTransactions) {
             java.util.Map<String, Object> txnMap = new java.util.HashMap<>();
             txnMap.put("id", txn.getId());
             txnMap.put("amount", txn.getAmount());
             txnMap.put("type", txn.getType().toString());
             txnMap.put("description", txn.getDescription());
             txnMap.put("date", txn.getTransactionDate());
-            recentTxns.add(txnMap);
+            txnMap.put("categoryId", txn.getCategoryId());
+            transactionsList.add(txnMap);
         }
-        profile.put("recentTransactions", recentTxns);
+        profile.put("transactions", transactionsList);
+
+        // Full budgets list
+        java.util.List<com.budgetwise.entity.Budget> budgets = budgetRepository.findByUserId(userId);
+        java.util.List<java.util.Map<String, Object>> budgetsList = new java.util.ArrayList<>();
+        for (com.budgetwise.entity.Budget budget : budgets) {
+            java.util.Map<String, Object> budgetMap = new java.util.HashMap<>();
+            budgetMap.put("id", budget.getId());
+            budgetMap.put("categoryId", budget.getCategoryId());
+            budgetMap.put("amount", budget.getAmount());
+            budgetMap.put("spent", budget.getSpent());
+            budgetMap.put("period", budget.getPeriod());
+            budgetMap.put("startDate", budget.getStartDate());
+            budgetMap.put("endDate", budget.getEndDate());
+            budgetsList.add(budgetMap);
+        }
+        profile.put("budgets", budgetsList);
+
+        // Full savings goals list
+        java.util.List<com.budgetwise.entity.SavingsGoal> goals = savingsGoalRepository.findByUserId(userId);
+        java.util.List<java.util.Map<String, Object>> goalsList = new java.util.ArrayList<>();
+        for (com.budgetwise.entity.SavingsGoal goal : goals) {
+            java.util.Map<String, Object> goalMap = new java.util.HashMap<>();
+            goalMap.put("id", goal.getId());
+            goalMap.put("name", goal.getName());
+            goalMap.put("targetAmount", goal.getTargetAmount());
+            goalMap.put("currentAmount", goal.getCurrentAmount());
+            goalMap.put("targetDate", goal.getDeadline());
+            goalMap.put("status", goal.getStatus());
+            goalsList.add(goalMap);
+        }
+        profile.put("savingsGoals", goalsList);
+
+        // Counts for quick reference
+        profile.put("totalTransactions", allTransactions.size());
+        profile.put("budgetCount", budgets.size());
+        profile.put("savingsGoalCount", goals.size());
+        profile.put("billCount", billRepository.findByUserIdOrderByNextDueDateAsc(userId).size());
+        profile.put("investmentCount", investmentRepository.findByUserIdOrderByPurchaseDateDesc(userId).size());
 
         return profile;
     }

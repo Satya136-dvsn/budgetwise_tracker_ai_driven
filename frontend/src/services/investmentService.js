@@ -31,6 +31,11 @@ const InvestmentService = {
         return response.data;
     },
 
+    refreshPrice: async (id) => {
+        const response = await api.post(`/investments/${id}/refresh`);
+        return response.data;
+    },
+
     deleteInvestment: async (id) => {
         await api.delete(`/investments/${id}`);
     }

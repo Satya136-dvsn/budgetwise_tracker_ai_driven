@@ -466,7 +466,20 @@ const InvestmentsPage = () => {
                                                             </Typography>
                                                         </TableCell>
                                                         <TableCell align="right">
-                                                            <Tooltip title="Update Price">
+                                                            <Tooltip title="Refresh Price (API)">
+                                                                <IconButton color="secondary" onClick={async () => {
+                                                                    try {
+                                                                        await InvestmentService.refreshPrice(inv.id);
+                                                                        fetchData();
+                                                                    } catch (e) {
+                                                                        console.error("Failed to refresh price", e);
+                                                                        alert("Failed to refresh price. Check API limit.");
+                                                                    }
+                                                                }}>
+                                                                    <LiveIcon />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                            <Tooltip title="Update Price Manually">
                                                                 <IconButton color="primary" onClick={() => handleOpenPriceDialog(inv)}>
                                                                     <ShowChartIcon />
                                                                 </IconButton>

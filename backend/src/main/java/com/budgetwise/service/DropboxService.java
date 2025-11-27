@@ -1,82 +1,61 @@
 package com.budgetwise.service;
 
 import com.budgetwise.config.ExternalApiConfig;
-import com.dropbox.core.DbxException;
-import com.dropbox.core.DbxRequestConfig;
-import com.dropbox.core.v2.DbxClientV2;
-import com.dropbox.core.v2.files.FileMetadata;
-import com.dropbox.core.v2.files.WriteMode;
+import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class DropboxService {
 
     private static final Logger logger = LoggerFactory.getLogger(DropboxService.class);
-
     private final ExternalApiConfig apiConfig;
+    private final OkHttpClient client;
 
     public DropboxService(ExternalApiConfig apiConfig) {
         this.apiConfig = apiConfig;
-   }
-
-    private DbxClientV2 getDropboxClient() {
-        DbxRequestConfig config = DbxRequestConfig.newBuilder("budgetwise/1.0").build();
-        return new DbxClientV2(config, apiConfig.getDropboxApiKey());
+        this.client = new OkHttpClient.Builder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .build();
     }
 
-    /**
-     * Upload file to Dropbox
-     */
-    public String uploadFile(byte[] fileContent, String fileName, String folder) {
-        try {
-            DbxClientV2 client = getDropboxClient();
-
-            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-            String dropboxPath = String.format("/%s/%s_%s", folder, timestamp, fileName);
-
-            try (InputStream in = new ByteArrayInputStream(fileContent)) {
-                FileMetadata metadata = client.files().uploadBuilder(dropboxPath)
-                        .withMode(WriteMode.OVERWRITE)
-                        .uploadAndFinish(in);
-
-                logger.info("File uploaded to Dropbox: {}", metadata.getPathDisplay());
-                return metadata.getPathDisplay();
-            }
-        } catch (DbxException | IOException e) {
-            logger.error("Error uploading file to Dropbox", e);
-            throw new RuntimeException("Failed to upload file to Dropbox", e);
+    public String uploadBackup(byte[] data, String filename) {
+        String accessToken = apiConfig.getDropboxApiKey();
+        if (accessToken == null || accessToken.isEmpty()) {
+            throw new RuntimeException("Dropbox Access Token is missing");
         }
-    }
 
-    /**
-     * Backup user data to Dropbox
-     */
-    public String backupUserData(Long userId, byte[] backupData) {
-        String fileName = String.format("user_%d_backup.json", userId);
-        return uploadFile(backupData, fileName, "backups");
-    }
+        // Escape quotes in filename just in case
+        String safeFilename = filename.replace("\"", "");
+        String arg = "{\"path\": \"/" + safeFilename
+                + "\", \"mode\": \"overwrite\", \"autorename\": true, \"mute\": false, \"strict_conflict\": false}";
 
-    /**
-     * Upload transaction export to Dropbox
-     */
-    public String uploadTransactionExport(Long userId, byte[] exportData, String format) {
-        String fileName = String.format("user_%d_transactions.%s", userId, format);
-        return uploadFile(exportData, fileName, "exports");
-    }
+        RequestBody body = RequestBody.create(data, MediaType.parse("application/octet-stream"));
 
-    /**
-     * Upload report to Dropbox
-     */
-    public String uploadReport(Long userId, byte[] reportData, String reportName) {
-        String fileName = String.format("user_%d_%s.pdf", userId, reportName);
-        return uploadFile(reportData, fileName, "reports");
+        Request request = new Request.Builder()
+                .url("https://content.dropboxapi.com/2/files/upload")
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .addHeader("Dropbox-API-Arg", arg)
+                .addHeader("Content-Type", "application/octet-stream")
+                .post(body)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                String errorBody = response.body() != null ? response.body().string() : "No body";
+                logger.error("Dropbox Upload Failed: {} - {}", response.code(), errorBody);
+                throw new RuntimeException("Dropbox upload failed: " + response.code() + " " + errorBody);
+            }
+            return "Backup uploaded successfully to Dropbox: /" + safeFilename;
+        } catch (IOException e) {
+            logger.error("Error uploading to Dropbox", e);
+            throw new RuntimeException("Error uploading to Dropbox", e);
+        }
     }
 }
