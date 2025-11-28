@@ -275,37 +275,37 @@ A weighted algorithm assesses user health.
 
 ### 9.1 Login & Authentication
 
-![Login Page](file:///C:/Users/ACER/.gemini/antigravity/brain/5567ab6e-eb3b-4abd-8d0c-fa2cc57c6a1c/login_page_1764318055070.png)
+![Login Page](./login_page_1764318055070.png)
 Secure entry point with email/password. Supports registration for new users.
 
 ### 9.2 Dashboard Overview
 
-![Dashboard](file:///C:/Users/ACER/.gemini/antigravity/brain/5567ab6e-eb3b-4abd-8d0c-fa2cc57c6a1c/dashboard_page_1764318064407.png)
+![Dashboard](./dashboard_page_1764318064407.png)
 Central hub showing Income, Expenses, Balance, and Savings Rate. Provides quick access to all features via the sidebar.
 
 ### 9.3 Debt Management
 
-![Debt Management](file:///C:/Users/ACER/.gemini/antigravity/brain/5567ab6e-eb3b-4abd-8d0c-fa2cc57c6a1c/debt_management_page_1764318072991.png)
+![Debt Management](./debt_management_page_1764318072991.png)
 Tracks liabilities. Users can simulate "Avalanche" vs "Snowball" strategies to see which gets them debt-free faster.
 
 ### 9.4 Financial Health Analysis
 
-![Financial Health](file:///C:/Users/ACER/.gemini/antigravity/brain/5567ab6e-eb3b-4abd-8d0c-fa2cc57c6a1c/financial_health_page_1764318081417.png)
+![Financial Health](./financial_health_page_1764318081417.png)
 Visualizes financial wellness with a score (0-100). Provides AI-driven recommendations like "Increase Emergency Fund".
 
 ### 9.5 Retirement Planning
 
-![Retirement](file:///C:/Users/ACER/.gemini/antigravity/brain/5567ab6e-eb3b-4abd-8d0c-fa2cc57c6a1c/retirement_page_1764318092068.png)
+![Retirement](./retirement_page_1764318092068.png)
 Projects future wealth using compound interest formulas. Users can adjust contribution amounts and expected returns.
 
 ### 9.6 Tax Planning
 
-![Tax Planning](file:///C:/Users/ACER/.gemini/antigravity/brain/5567ab6e-eb3b-4abd-8d0c-fa2cc57c6a1c/tax_planning_page_1764318104672.png)
+![Tax Planning](./tax_planning_page_1764318104672.png)
 Estimates tax liability based on Indian Tax Slabs. Highlights unused deductions (80C, 80D) to help users save tax.
 
 ### 9.7 Scenario Analysis
 
-![Scenario Analysis](file:///C:/Users/ACER/.gemini/antigravity/brain/5567ab6e-eb3b-4abd-8d0c-fa2cc57c6a1c/scenario_analysis_page_1764318115076.png)
+![Scenario Analysis](./scenario_analysis_page_1764318115076.png)
 "What-If" modeling. Users can simulate a raise (Income +20%) or a lifestyle change (Expenses +10%) to see the long-term impact on their net worth.
 
 ---

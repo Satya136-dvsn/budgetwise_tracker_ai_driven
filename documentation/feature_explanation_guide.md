@@ -27,7 +27,7 @@ This document provides a comprehensive visual explanation of the BudgetWise Trac
 
 ### Login Page Interface
 
-![Login Page](file:///C:/Users/ACER/.gemini/antigravity/brain/5567ab6e-eb3b-4abd-8d0c-fa2cc57c6a1c/login_page_1764318055070.png)
+![Login Page](./login_page_1764318055070.png)
 
 ### What You See
 
@@ -87,7 +87,7 @@ This document provides a comprehensive visual explanation of the BudgetWise Trac
 
 ### Dashboard Page
 
-![Dashboard](file:///C:/Users/ACER/.gemini/antigravity/brain/5567ab6e-eb3b-4abd-8d0c-fa2cc57c6a1c/dashboard_page_1764318064407.png)
+![Dashboard](./dashboard_page_1764318064407.png)
 
 ### Navigation Sidebar (Left)
 
@@ -189,7 +189,7 @@ Dashboard re-renders with new numbers
 
 ### Debt Management Page
 
-![Debt Management](file:///C:/Users/ACER/.gemini/antigravity/brain/5567ab6e-eb3b-4abd-8d0c-fa2cc57c6a1c/debt_management_page_1764318072991.png)
+![Debt Management](./debt_management_page_1764318072991.png)
 
 ### Page Sections Explained
 
@@ -355,7 +355,7 @@ for each month:
 
 ### Financial Health Page
 
-![Financial Health](file:///C:/Users/ACER/.gemini/antigravity/brain/5567ab6e-eb3b-4abd-8d0c-fa2cc57c6a1c/financial_health_page_1764318081417.png)
+![Financial Health](./financial_health_page_1764318081417.png)
 
 ### Page Layout Explained
 
@@ -559,7 +559,7 @@ public class FinancialHealthService {
 
 ### Retirement Planning Page
 
-![Retirement](file:///C:/Users/ACER/.gemini/antigravity/brain/5567ab6e-eb3b-4abd-8d0c-fa2cc57c6a1c/retirement_page_1764318092068.png)
+![Retirement](./retirement_page_1764318092068.png)
 
 ### Page Components
 
@@ -783,7 +783,7 @@ public class RetirementService {
 
 ### Tax Planning Page
 
-![Tax Planning](file:///C:/Users/ACER/.gemini/antigravity/brain/5567ab6e-eb3b-4abd-8d0c-fa2cc57c6a1c/tax_planning_page_1764318104672.png)
+![Tax Planning](./tax_planning_page_1764318104672.png)
 
 ### Page Layout
 
@@ -1004,7 +1004,7 @@ public class TaxService {
 
 ### Scenario Analysis Page
 
-![Scenario Analysis](file:///C:/Users/ACER/.gemini/antigravity/brain/5567ab6e-eb3b-4abd-8d0c-fa2cc57c6a1c/scenario_analysis_page_1764318115076.png)
+![Scenario Analysis](./scenario_analysis_page_1764318115076.png)
 
 ### Page Purpose
 
