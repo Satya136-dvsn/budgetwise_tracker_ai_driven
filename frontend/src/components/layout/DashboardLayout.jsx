@@ -43,6 +43,11 @@ import {
   Warning as WarningIcon,
   TrendingUp as TrendingUpIcon,
   AdminPanelSettings as AdminIcon,
+  CreditCard as DebtIcon,
+  MonitorHeart as HealthIcon,
+  SavingsOutlined as RetirementIcon,
+  AccountBalance as TaxIcon,
+  Psychology as ScenarioIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
@@ -55,9 +60,14 @@ const menuItems = [
   { text: 'Categories', icon: <CategoryIcon />, path: '/categories' },
   { text: 'Budgets', icon: <BudgetIcon />, path: '/budgets' },
   { text: 'Savings Goals', icon: <SavingsIcon />, path: '/goals' },
+  { text: 'Debt Management', icon: <DebtIcon />, path: '/debt-management' },
+  { text: 'Financial Health', icon: <HealthIcon />, path: '/financial-health' },
   { text: 'Banking', icon: <BankingIcon />, path: '/banking' },
   { text: 'Bills', icon: <BillsIcon />, path: '/bills' },
   { text: 'Investments', icon: <InvestmentsIcon />, path: '/investments' },
+  { text: 'Retirement', icon: <RetirementIcon />, path: '/retirement' },
+  { text: 'Tax Planning', icon: <TaxIcon />, path: '/tax-planning' },
+  { text: 'Scenario Analysis', icon: <ScenarioIcon />, path: '/scenario-analysis' },
   { text: 'AI Assistant', icon: <AIIcon />, path: '/ai-chat' },
   { text: 'Analytics', icon: <AnalyticsIcon />, path: '/analytics' },
   { text: 'Reports', icon: <ReportsIcon />, path: '/reports' },

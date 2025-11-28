@@ -55,3 +55,7 @@ backend/src/main/resources/application.properties
 # OS
 .DS_Store
 Thumbs.db
+
+
+.github/instructions/kluster-code-verify.instructions.md
+.kluster
