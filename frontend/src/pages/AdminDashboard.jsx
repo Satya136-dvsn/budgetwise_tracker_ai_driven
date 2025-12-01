@@ -3,7 +3,7 @@ import { Container, Box, Typography, Fade, Snackbar, Alert, CircularProgress, Bu
 import SystemStatsWidget from '../components/admin/SystemStatsWidget';
 import UserManagementTable from '../components/admin/UserManagementTable';
 import UserProfileDialog from '../components/admin/UserProfileDialog';
-import UserProfileDialog from '../components/admin/UserProfileDialog';
+
 import adminService from '../services/adminService';
 import userService from '../services/userService';
 import { CloudUpload, AddLink, CheckCircle } from '@mui/icons-material';
@@ -14,7 +14,7 @@ const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
     const [profileDialog, setProfileDialog] = useState({ open: false, userId: null, userName: '' });
     const [isDriveConnected, setIsDriveConnected] = useState(false);
     const [driveLoading, setDriveLoading] = useState(false);

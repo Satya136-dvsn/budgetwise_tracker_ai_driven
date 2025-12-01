@@ -62,12 +62,23 @@ Your financial advisor.
 - **Predictions**: See forecasted expenses for the next month based on your history.
 - **Anomalies**: Get alerted about unusual spending patterns.
 
+![AI Chat Assistant](documentation/ai_chat.png)
+
 ### 🔒 Data Privacy (GDPR)
 
 Your data, your control.
 
 - **Export Data**: Go to **Settings > Account** to download a full JSON copy of your data.
 - **Delete Account**: Permanently remove your account and all associated data.
+
+### ☁️ Cloud Backup
+
+Secure your data with Google Drive.
+
+- **Connect**: Go to **Settings > Account** and link your Google Drive.
+- **Backup**: Click "Backup Now" to save a snapshot of your data to the cloud.
+
+![Google Drive Backup](documentation/google_drive_backup.png)
 
 ---
 

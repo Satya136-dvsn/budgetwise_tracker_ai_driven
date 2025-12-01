@@ -369,6 +369,16 @@ Estimates tax liability based on Indian Tax Slabs. Highlights unused deductions 
 ![Scenario Analysis](./scenario_analysis_page_1764318115076.png)
 "What-If" modeling. Users can simulate a raise (Income +20%) or a lifestyle change (Expenses +10%) to see the long-term impact on their net worth.
 
+### 9.8 AI Chat Assistant
+
+![AI Chat Assistant](./ai_chat.png)
+An intelligent financial assistant powered by Google Gemini. Users can ask natural language questions like "How can I save more?" or "Analyze my spending" to get personalized advice.
+
+### 9.9 Google Drive Backup
+
+![Google Drive Backup](./google_drive_backup.png)
+Secure cloud backup integration. Users can link their Google Drive account to automatically backup their financial data, ensuring data safety and portability.
+
 ---
 
 ## 10. Testing & Quality Assurance

@@ -46,7 +46,17 @@ public class AuthService {
 
         // Create new user
         User user = new User();
-        user.setUsername(request.getUsername());
+
+        String username = request.getUsername();
+        if (username == null || username.trim().isEmpty()) {
+            username = request.getEmail().split("@")[0];
+            // Ensure username is unique
+            if (userRepository.existsByUsername(username)) {
+                username = username + "_" + System.currentTimeMillis() % 1000;
+            }
+        }
+
+        user.setUsername(username);
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
