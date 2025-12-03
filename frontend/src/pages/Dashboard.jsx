@@ -2,11 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import { useNavigate } from 'react-router-dom';
 import {
-  Container, Grid, Typography, Box, Alert, Fade, Skeleton, List, ListItem, ListItemText, Button, Chip,
+  Container, Grid, Typography, Box, Alert, Fade, Skeleton, List, ListItem, ListItemText, Button, Chip, Paper,
 } from '@mui/material';
 import {
   TrendingUp as IncomeIcon, TrendingDown as ExpenseIcon, AccountBalance as BalanceIcon, Savings as SavingsIcon,
   ShowChart as ChartIcon, PieChart as PieChartIcon, Receipt as TransactionsIcon, ArrowForward as ArrowForwardIcon,
+  AutoAwesome as AutoAwesomeIcon,
 } from '@mui/icons-material';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import StatCard from '../components/ui/StatCard';
@@ -119,7 +120,68 @@ const Dashboard = () => {
             <Box><StatCard title="Savings Rate" value={summary?.savingsRate != null ? `${summary.savingsRate.toFixed(1)}%` : '--'} subtitle="Of Total Income" icon={<SavingsIcon />} color="secondary" loading={loading} /></Box>
           </Fade>
         </Grid>
+
       </Grid>
+
+      {/* AI Insight Banner */}
+      <Fade in timeout={750}>
+        <Box sx={{ mb: 4 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3,
+              borderRadius: 2,
+              background: 'linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 2,
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, zIndex: 1 }}>
+              <Box
+                sx={{
+                  p: 1.5,
+                  borderRadius: '50%',
+                  bgcolor: 'rgba(255,255,255,0.15)',
+                  display: 'flex'
+                }}
+              >
+                <AutoAwesomeIcon sx={{ fontSize: 32 }} />
+              </Box>
+              <Box>
+                <Typography variant="overline" sx={{ opacity: 0.8, letterSpacing: 1, color: 'rgba(255,255,255,0.9)' }}>
+                  AI Financial Insight
+                </Typography>
+                <Typography variant="h5" fontWeight="bold" sx={{ color: 'white' }}>
+                  Predicted Expense: {formatCurrency(summary?.nextMonthPrediction ?? 0)}
+                </Typography>
+                <Typography variant="body1" sx={{ opacity: 0.9, mt: 0.5, color: 'rgba(255,255,255,0.9)' }}>
+                  {summary?.aiRecommendation || "Analyzing your spending patterns..."}
+                </Typography>
+              </Box>
+            </Box>
+            {/* Decorative circle */}
+            <Box
+              sx={{
+                position: 'absolute',
+                right: -20,
+                top: -20,
+                width: 150,
+                height: 150,
+                borderRadius: '50%',
+                bgcolor: 'rgba(255,255,255,0.05)',
+                zIndex: 0
+              }}
+            />
+          </Paper>
+        </Box>
+      </Fade>
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} md={8}>

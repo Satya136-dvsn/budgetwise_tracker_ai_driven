@@ -10,12 +10,15 @@ public class DashboardSummaryDto {
     private Integer transactionCount;
     private Integer budgetCount;
     private Integer goalCount;
+    private BigDecimal nextMonthPrediction;
+    private String aiRecommendation;
 
     public DashboardSummaryDto() {
     }
 
     public DashboardSummaryDto(BigDecimal totalIncome, BigDecimal totalExpenses, BigDecimal balance, Double savingsRate,
-            Integer transactionCount, Integer budgetCount, Integer goalCount) {
+            Integer transactionCount, Integer budgetCount, Integer goalCount, BigDecimal nextMonthPrediction,
+            String aiRecommendation) {
         this.totalIncome = totalIncome;
         this.totalExpenses = totalExpenses;
         this.balance = balance;
@@ -23,6 +26,8 @@ public class DashboardSummaryDto {
         this.transactionCount = transactionCount;
         this.budgetCount = budgetCount;
         this.goalCount = goalCount;
+        this.nextMonthPrediction = nextMonthPrediction;
+        this.aiRecommendation = aiRecommendation;
     }
 
     public BigDecimal getTotalIncome() {
@@ -81,6 +86,22 @@ public class DashboardSummaryDto {
         this.goalCount = goalCount;
     }
 
+    public BigDecimal getNextMonthPrediction() {
+        return nextMonthPrediction;
+    }
+
+    public void setNextMonthPrediction(BigDecimal nextMonthPrediction) {
+        this.nextMonthPrediction = nextMonthPrediction;
+    }
+
+    public String getAiRecommendation() {
+        return aiRecommendation;
+    }
+
+    public void setAiRecommendation(String aiRecommendation) {
+        this.aiRecommendation = aiRecommendation;
+    }
+
     public static DashboardSummaryDtoBuilder builder() {
         return new DashboardSummaryDtoBuilder();
     }
@@ -93,6 +114,8 @@ public class DashboardSummaryDto {
         private Integer transactionCount;
         private Integer budgetCount;
         private Integer goalCount;
+        private BigDecimal nextMonthPrediction;
+        private String aiRecommendation;
 
         public DashboardSummaryDtoBuilder totalIncome(BigDecimal totalIncome) {
             this.totalIncome = totalIncome;
@@ -129,9 +152,19 @@ public class DashboardSummaryDto {
             return this;
         }
 
+        public DashboardSummaryDtoBuilder nextMonthPrediction(BigDecimal nextMonthPrediction) {
+            this.nextMonthPrediction = nextMonthPrediction;
+            return this;
+        }
+
+        public DashboardSummaryDtoBuilder aiRecommendation(String aiRecommendation) {
+            this.aiRecommendation = aiRecommendation;
+            return this;
+        }
+
         public DashboardSummaryDto build() {
             return new DashboardSummaryDto(totalIncome, totalExpenses, balance, savingsRate, transactionCount,
-                    budgetCount, goalCount);
+                    budgetCount, goalCount, nextMonthPrediction, aiRecommendation);
         }
     }
 }

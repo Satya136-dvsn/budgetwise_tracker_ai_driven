@@ -55,7 +55,10 @@ const BudgetDialog = ({ open, budget, onClose }) => {
   const loadCategories = async () => {
     try {
       const response = await categoryService.getAll();
-      setCategories(response.data.filter(c => c.type === 'EXPENSE'));
+      const expenseCategories = response.data.filter(c => c.type === 'EXPENSE');
+      console.log('BudgetDialog - All categories:', response.data);
+      console.log('BudgetDialog - Expense categories:', expenseCategories);
+      setCategories(expenseCategories);
     } catch (err) {
       console.error('Failed to load categories:', err);
       if (err.response?.status === 403 || err.response?.status === 401) {

@@ -1,6 +1,8 @@
 package com.budgetwise.service;
 
+import com.budgetwise.annotation.Auditable;
 import com.budgetwise.dto.*;
+import com.budgetwise.entity.RefreshToken;
 import com.budgetwise.entity.User;
 import com.budgetwise.repository.UserRepository;
 import com.budgetwise.security.JwtTokenProvider;
@@ -23,16 +25,21 @@ public class AuthService {
     private final JwtTokenProvider tokenProvider;
     private final ProfileService profileService;
     private final NotificationService notificationService;
+    private final RefreshTokenService refreshTokenService;
+    private final MfaService mfaService;
 
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager, JwtTokenProvider tokenProvider,
-            ProfileService profileService, NotificationService notificationService) {
+            ProfileService profileService, NotificationService notificationService, MfaService mfaService,
+            RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
         this.profileService = profileService;
         this.notificationService = notificationService;
+        this.mfaService = mfaService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -42,6 +49,13 @@ public class AuthService {
 
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email Address already in use!");
+        }
+
+        // Validate password strength
+        com.budgetwise.util.PasswordValidator.ValidationResult validationResult = com.budgetwise.util.PasswordValidator
+                .validate(request.getPassword());
+        if (!validationResult.isValid()) {
+            throw new RuntimeException(validationResult.getErrorMessage());
         }
 
         // Create new user
@@ -95,12 +109,13 @@ public class AuthService {
 
         // Generate tokens
         String accessToken = tokenProvider.generateAccessToken(authentication);
-        String refreshToken = tokenProvider.generateRefreshToken(authentication);
+        com.budgetwise.entity.RefreshToken refreshToken = refreshTokenService.createRefreshToken(savedUser.getId());
 
-        return new AuthResponse(accessToken, refreshToken, tokenProvider.getJwtExpirationMs(),
+        return new AuthResponse(accessToken, refreshToken.getToken(), tokenProvider.getJwtExpirationMs(),
                 UserDto.fromEntity(savedUser));
     }
 
+    @Auditable(action = "LOGIN")
     public AuthResponse login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
@@ -108,35 +123,76 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accessToken = tokenProvider.generateAccessToken(authentication);
-        String refreshToken = tokenProvider.generateRefreshToken(authentication);
 
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return new AuthResponse(accessToken, refreshToken, tokenProvider.getJwtExpirationMs(),
+        if (Boolean.TRUE.equals(user.getIsMfaEnabled())) {
+            AuthResponse response = new AuthResponse();
+            response.setMfaRequired(true);
+            response.setPreAuthToken(accessToken);
+            return response;
+        }
+
+        // Create or update refresh token (upsert logic in service)
+        com.budgetwise.entity.RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
+
+        return new AuthResponse(accessToken, refreshToken.getToken(), tokenProvider.getJwtExpirationMs(),
                 UserDto.fromEntity(user));
     }
 
-    public AuthResponse refreshToken(RefreshTokenRequest request) {
-        String refreshToken = request.getRefreshToken();
-
-        if (!tokenProvider.validateToken(refreshToken)) {
-            throw new RuntimeException("Invalid refresh token");
+    @Auditable(action = "MFA_VERIFY")
+    public AuthResponse verifyMfa(String preAuthToken, int code) {
+        if (!tokenProvider.validateToken(preAuthToken)) {
+            throw new RuntimeException("Invalid pre-auth token");
         }
 
-        Long userId = tokenProvider.getUserIdFromToken(refreshToken);
+        Long userId = tokenProvider.getUserIdFromToken(preAuthToken);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        if (!Boolean.TRUE.equals(user.getIsMfaEnabled())) {
+            throw new RuntimeException("MFA is not enabled for this user");
+        }
+
+        // Verify the code
+        if (!mfaService.verifyCode(user.getMfaSecret(), code)) {
+            throw new RuntimeException("Invalid MFA code");
+        }
+
+        // Generate fresh tokens
         UserPrincipal userPrincipal = UserPrincipal.create(user);
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 userPrincipal, null, userPrincipal.getAuthorities());
 
         String newAccessToken = tokenProvider.generateAccessToken(authentication);
-        String newRefreshToken = tokenProvider.generateRefreshToken(authentication);
 
-        return new AuthResponse(newAccessToken, newRefreshToken, tokenProvider.getJwtExpirationMs(),
+        // Create or update refresh token (upsert logic in service)
+        com.budgetwise.entity.RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user.getId());
+
+        return new AuthResponse(newAccessToken, newRefreshToken.getToken(), tokenProvider.getJwtExpirationMs(),
                 UserDto.fromEntity(user));
+    }
+
+    public AuthResponse refreshToken(RefreshTokenRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(oldToken -> {
+                    // Rotate the refresh token
+                    RefreshToken newRefreshToken = refreshTokenService.rotateRefreshToken(oldToken);
+
+                    User user = newRefreshToken.getUser();
+                    UserPrincipal userPrincipal = UserPrincipal.create(user);
+                    Authentication authentication = new UsernamePasswordAuthenticationToken(
+                            userPrincipal, null, userPrincipal.getAuthorities());
+                    String accessToken = tokenProvider.generateAccessToken(authentication);
+
+                    return new AuthResponse(accessToken, newRefreshToken.getToken(), tokenProvider.getJwtExpirationMs(),
+                            UserDto.fromEntity(user));
+                })
+                .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
     }
 }

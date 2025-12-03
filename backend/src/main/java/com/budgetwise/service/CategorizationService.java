@@ -120,6 +120,11 @@ public class CategorizationService {
         }
 
         // 2. If no match, CREATE a new category
+        if (suggestedCategoryName.toLowerCase().contains("error")
+                || suggestedCategoryName.toLowerCase().contains("unavailable")) {
+            System.err.println("AI returned an error, skipping category creation: " + suggestedCategoryName);
+            return getDefaultSuggestion(categories);
+        }
         return createNewCategory(suggestedCategoryName, userId);
     }
 

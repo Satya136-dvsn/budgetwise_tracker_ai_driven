@@ -14,13 +14,20 @@ import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, verifyMfa } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const [mfaCode, setMfaCode] = useState('');
+  const [mfaRequired, setMfaRequired] = useState(false);
+  const [preAuthToken, setPreAuthToken] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleMfaChange = (e) => {
+    setMfaCode(e.target.value);
   };
 
   const handleSubmit = async (e) => {
@@ -29,8 +36,18 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await login(formData.email, formData.password);
-      navigate('/dashboard');
+      if (mfaRequired) {
+        await verifyMfa(preAuthToken, mfaCode);
+        navigate('/dashboard');
+      } else {
+        const data = await login(formData.email, formData.password);
+        if (data.mfaRequired) {
+          setMfaRequired(true);
+          setPreAuthToken(data.preAuthToken);
+        } else {
+          navigate('/dashboard');
+        }
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {
@@ -63,29 +80,45 @@ const Login = () => {
           )}
 
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-            <TextField
-              fullWidth
-              label="Email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              margin="normal"
-              required
-              autoComplete="email"
-              autoFocus
-            />
-            <TextField
-              fullWidth
-              label="Password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              margin="normal"
-              required
-              autoComplete="current-password"
-            />
+            {mfaRequired ? (
+              <TextField
+                fullWidth
+                label="MFA Code"
+                name="mfaCode"
+                value={mfaCode}
+                onChange={handleMfaChange}
+                margin="normal"
+                required
+                autoFocus
+                placeholder="Enter 6-digit code"
+              />
+            ) : (
+              <>
+                <TextField
+                  fullWidth
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  margin="normal"
+                  required
+                  autoComplete="email"
+                  autoFocus
+                />
+                <TextField
+                  fullWidth
+                  label="Password"
+                  name="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  margin="normal"
+                  required
+                  autoComplete="current-password"
+                />
+              </>
+            )}
             <Button
               type="submit"
               fullWidth
@@ -94,7 +127,7 @@ const Login = () => {
               disabled={loading}
               sx={{ mt: 3, mb: 2 }}
             >
-              {loading ? 'Signing In...' : 'Sign In'}
+              {loading ? 'Processing...' : (mfaRequired ? 'Verify' : 'Sign In')}
             </Button>
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="body2">

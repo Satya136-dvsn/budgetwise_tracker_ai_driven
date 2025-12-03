@@ -1,16 +1,33 @@
-import { useState } from 'react';
-import { Grid, TextField, Button, Typography, Switch, FormControlLabel, Divider, Box, Snackbar, Alert } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Grid, TextField, Button, Typography, Switch, Divider, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import userService from '../../services/userService';
+import authService from '../../services/authService';
 import { Save, Key, PhonelinkLock } from '@mui/icons-material';
 import ProfessionalCard from '../ui/ProfessionalCard';
+import { useAuth } from '../../context/AuthContext';
+import AuditLogViewer from './AuditLogViewer';
+import SessionManagement from './SessionManagement';
 
 const SecuritySettings = () => {
+    const { user } = useAuth();
     const [passwords, setPasswords] = useState({
         current: '',
         new: '',
         confirm: '',
     });
     const [twoFactor, setTwoFactor] = useState(false);
+    const [mfaSetup, setMfaSetup] = useState({
+        open: false,
+        secret: '',
+        qrCodeUrl: '',
+        code: ''
+    });
+
+    useEffect(() => {
+        if (user?.isMfaEnabled) {
+            setTwoFactor(true);
+        }
+    }, [user]);
 
     const handleChange = (e) => {
         setPasswords({
@@ -45,6 +62,44 @@ const SecuritySettings = () => {
             setSnackbar({ open: true, message: 'Failed to update password', severity: 'error' });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleToggleMfa = async (e) => {
+        const checked = e.target.checked;
+        if (checked) {
+            // Enable MFA
+            try {
+                const data = await authService.setupMfa();
+                setMfaSetup({
+                    open: true,
+                    secret: data.secret,
+                    qrCodeUrl: data.qrCodeUrl,
+                    code: ''
+                });
+            } catch (error) {
+                setSnackbar({ open: true, message: 'Failed to start MFA setup', severity: 'error' });
+            }
+        } else {
+            // Disable MFA
+            try {
+                await authService.disableMfa();
+                setTwoFactor(false);
+                setSnackbar({ open: true, message: 'MFA disabled successfully', severity: 'success' });
+            } catch (error) {
+                setSnackbar({ open: true, message: 'Failed to disable MFA', severity: 'error' });
+            }
+        }
+    };
+
+    const handleVerifyMfa = async () => {
+        try {
+            await authService.enableMfa(mfaSetup.secret, mfaSetup.code);
+            setTwoFactor(true);
+            setMfaSetup({ ...mfaSetup, open: false });
+            setSnackbar({ open: true, message: 'MFA enabled successfully', severity: 'success' });
+        } catch (error) {
+            setSnackbar({ open: true, message: 'Invalid code', severity: 'error' });
         }
     };
 
@@ -111,13 +166,52 @@ const SecuritySettings = () => {
                             </Box>
                             <Switch
                                 checked={twoFactor}
-                                onChange={(e) => setTwoFactor(e.target.checked)}
+                                onChange={handleToggleMfa}
                                 color="primary"
                             />
                         </Box>
                     </ProfessionalCard>
                 </Grid>
+
+                <Grid item xs={12}>
+                    <SessionManagement />
+                </Grid>
+
+                <Grid item xs={12}>
+                    <AuditLogViewer />
+                </Grid>
             </Grid>
+
+            <Dialog open={mfaSetup.open} onClose={() => setMfaSetup({ ...mfaSetup, open: false })}>
+                <DialogTitle>Setup Multi-Factor Authentication</DialogTitle>
+                <DialogContent>
+                    <Box display="flex" flexDirection="column" alignItems="center" gap={2} py={2}>
+                        <Typography variant="body1">
+                            Scan this QR code with your authenticator app (e.g., Google Authenticator).
+                        </Typography>
+                        {mfaSetup.qrCodeUrl && (
+                            <img src={mfaSetup.qrCodeUrl} alt="MFA QR Code" style={{ width: 200, height: 200 }} />
+                        )}
+                        <Typography variant="caption" color="text.secondary">
+                            Secret: {mfaSetup.secret}
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            label="Verification Code"
+                            value={mfaSetup.code}
+                            onChange={(e) => setMfaSetup({ ...mfaSetup, code: e.target.value })}
+                            placeholder="Enter 6-digit code"
+                        />
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setMfaSetup({ ...mfaSetup, open: false })}>Cancel</Button>
+                    <Button onClick={handleVerifyMfa} variant="contained" disabled={!mfaSetup.code}>
+                        Verify & Enable
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
             <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
                 <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
                     {snackbar.message}

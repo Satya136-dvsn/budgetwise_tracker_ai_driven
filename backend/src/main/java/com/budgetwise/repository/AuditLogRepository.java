@@ -1,3 +1,4 @@
+
 package com.budgetwise.repository;
 
 import com.budgetwise.entity.AuditLog;
@@ -6,10 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
-    
-    Page<AuditLog> findAllByOrderByCreatedAtDesc(Pageable pageable);
-    
-    Page<AuditLog> findByAdminUserIdOrderByCreatedAtDesc(Long adminUserId, Pageable pageable);
+    List<AuditLog> findByUserIdOrderByEventTimestampDesc(Long userId);
+
+    Page<AuditLog> findAllByOrderByEventTimestampDesc(Pageable pageable);
 }

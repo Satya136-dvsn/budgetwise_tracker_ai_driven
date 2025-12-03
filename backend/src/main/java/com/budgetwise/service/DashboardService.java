@@ -1,10 +1,15 @@
 package com.budgetwise.service;
 
-import com.budgetwise.dto.*;
+import com.budgetwise.dto.DashboardSummaryDto;
+import com.budgetwise.dto.MonthlyTrendDto;
+import com.budgetwise.dto.CategoryBreakdownDto;
+import com.budgetwise.dto.TransactionDto;
 import com.budgetwise.entity.Transaction;
 import com.budgetwise.repository.BudgetRepository;
 import com.budgetwise.repository.SavingsGoalRepository;
 import com.budgetwise.repository.TransactionRepository;
+import com.budgetwise.service.PredictionService;
+import com.budgetwise.dto.PredictionDto;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -25,53 +30,138 @@ public class DashboardService {
         private final BudgetRepository budgetRepository;
         private final SavingsGoalRepository savingsGoalRepository;
         private final com.budgetwise.repository.CategoryRepository categoryRepository;
+        private final PredictionService predictionService;
 
         public DashboardService(TransactionRepository transactionRepository, BudgetRepository budgetRepository,
                         SavingsGoalRepository savingsGoalRepository,
-                        com.budgetwise.repository.CategoryRepository categoryRepository) {
+                        com.budgetwise.repository.CategoryRepository categoryRepository,
+                        PredictionService predictionService) {
                 this.transactionRepository = transactionRepository;
                 this.budgetRepository = budgetRepository;
                 this.savingsGoalRepository = savingsGoalRepository;
                 this.categoryRepository = categoryRepository;
+                this.predictionService = predictionService;
         }
 
         @Cacheable(value = "dashboard_summary", key = "#userId")
         public DashboardSummaryDto getDashboardSummary(Long userId) {
-                LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
-                LocalDate endOfMonth = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
 
-                List<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(
-                                userId, startOfMonth, endOfMonth);
+                List<Transaction> allTransactions = transactionRepository.findByUserIdOrderByCreatedAtDesc(userId);
 
-                BigDecimal totalIncome = transactions.stream()
+                // Calculate Balance (All Time)
+                BigDecimal allTimeIncome = allTransactions.stream()
                                 .filter(t -> t.getType() == Transaction.TransactionType.INCOME)
                                 .map(Transaction::getAmount)
                                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                BigDecimal totalExpenses = transactions.stream()
+                BigDecimal allTimeExpenses = allTransactions.stream()
                                 .filter(t -> t.getType() == Transaction.TransactionType.EXPENSE)
                                 .map(Transaction::getAmount)
                                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                BigDecimal balance = totalIncome.subtract(totalExpenses);
+                BigDecimal balance = allTimeIncome.subtract(allTimeExpenses);
 
-                Double savingsRate = totalIncome.compareTo(BigDecimal.ZERO) > 0
-                                ? balance.divide(totalIncome, 4, RoundingMode.HALF_UP)
+                // Calculate Income/Expense (Current Month Only)
+                YearMonth currentMonth = YearMonth.now();
+                List<Transaction> currentMonthTransactions = allTransactions.stream()
+                                .filter(t -> {
+                                        LocalDate date = t.getTransactionDate();
+                                        return date != null && YearMonth.from(date).equals(currentMonth);
+                                })
+                                .collect(Collectors.toList());
+
+                BigDecimal monthlyIncome = currentMonthTransactions.stream()
+                                .filter(t -> t.getType() == Transaction.TransactionType.INCOME)
+                                .map(Transaction::getAmount)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                BigDecimal monthlyExpenses = currentMonthTransactions.stream()
+                                .filter(t -> t.getType() == Transaction.TransactionType.EXPENSE)
+                                .map(Transaction::getAmount)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                Double savingsRate = monthlyIncome.compareTo(BigDecimal.ZERO) > 0
+                                ? monthlyIncome.subtract(monthlyExpenses).divide(monthlyIncome, 4, RoundingMode.HALF_UP)
                                                 .multiply(BigDecimal.valueOf(100))
                                                 .doubleValue()
                                 : 0.0;
 
                 Integer budgetCount = budgetRepository.countByUserId(userId);
-                Integer goalCount = savingsGoalRepository.countByUserId(userId);
+                Integer totalGoals = savingsGoalRepository.countByUserId(userId);
+
+                // Get AI Prediction for Next Month
+                BigDecimal nextMonthPrediction = BigDecimal.ZERO;
+                String aiRecommendation = "Keep up the good work!";
+
+                try {
+                        List<PredictionDto> predictions = predictionService.predictNextMonthExpenses(userId);
+                        if (!predictions.isEmpty()) {
+                                // Index 0 is the total prediction
+                                nextMonthPrediction = predictions.get(0).getPredictedAmount();
+
+                                // Generate Recommendation
+                                PredictionDto topConcern = null;
+                                for (int i = 1; i < predictions.size(); i++) { // Skip total at index 0
+                                        PredictionDto p = predictions.get(i);
+                                        String catName = p.getCategoryName().toLowerCase();
+                                        // Filter out non-expense categories or positive financial habits
+                                        if (catName.contains("saving") || catName.contains("investment")
+                                                        || catName.contains("income")) {
+                                                continue;
+                                        }
+
+                                        if ("INCREASING".equals(p.getTrend())) {
+                                                if (topConcern == null || p.getPredictedAmount()
+                                                                .compareTo(topConcern.getPredictedAmount()) > 0) {
+                                                        topConcern = p;
+                                                }
+                                        }
+                                }
+
+                                if (topConcern == null && predictions.size() > 1) {
+                                        // Fallback: Find highest predicted expense that isn't savings/investment
+                                        for (int i = 1; i < predictions.size(); i++) {
+                                                PredictionDto p = predictions.get(i);
+                                                String catName = p.getCategoryName().toLowerCase();
+                                                if (catName.contains("saving") || catName.contains("investment")
+                                                                || catName.contains("income")) {
+                                                        continue;
+                                                }
+
+                                                if (topConcern == null || p.getPredictedAmount()
+                                                                .compareTo(topConcern.getPredictedAmount()) > 0) {
+                                                        topConcern = p;
+                                                }
+                                        }
+                                }
+
+                                if (topConcern != null) {
+                                        if ("INCREASING".equals(topConcern.getTrend())) {
+                                                aiRecommendation = "Alert: Spending on " + topConcern.getCategoryName()
+                                                                + " is trending up. Try to reduce it.";
+                                        } else {
+                                                aiRecommendation = "Tip: Your highest projected expense is "
+                                                                + topConcern.getCategoryName()
+                                                                + ". Look for savings here.";
+                                        }
+                                }
+                        }
+                } catch (Throwable e) {
+                        System.err.println(
+                                        "CRITICAL ERROR: Failed to get AI prediction for dashboard: " + e.getMessage());
+                        e.printStackTrace();
+                }
 
                 return DashboardSummaryDto.builder()
-                                .totalIncome(totalIncome)
-                                .totalExpenses(totalExpenses)
+                                .totalIncome(monthlyIncome)
+                                .totalExpenses(monthlyExpenses)
                                 .balance(balance)
                                 .savingsRate(savingsRate)
-                                .transactionCount(transactions.size())
+                                .transactionCount(allTransactions.size())
                                 .budgetCount(budgetCount)
-                                .goalCount(goalCount)
+                                .goalCount(totalGoals)
+                                .nextMonthPrediction(nextMonthPrediction)
+                                .aiRecommendation(aiRecommendation)
                                 .build();
         }
 
@@ -117,21 +207,11 @@ public class DashboardService {
         @Cacheable(value = "dashboard_breakdown", key = "#userId + '_' + #months")
         public List<CategoryBreakdownDto> getCategoryBreakdown(Long userId, Integer months) {
                 if (months == null || months <= 0) {
-                        months = 6; // Default to 6 months if not specified
+                        months = 6;
                 }
 
                 LocalDate endDate = LocalDate.now();
-                // Calculate start date based on months (e.g., 6 months ago from today)
-                // If months=1, it means current month? Or last 1 month?
-                // Analytics usually implies "Last X Months".
-                // Let's match getMonthlyTrends logic: endDate.minusMonths(i) where i is 0 to
-                // months-1.
-                // So start date is endDate.minusMonths(months - 1).withDayOfMonth(1)?
-                // Or just minusMonths(months)?
-                // Let's say months=6. We want data from 6 months ago to now.
                 LocalDate startDate = endDate.minusMonths(months).withDayOfMonth(1);
-
-                // However, getMonthlyTrends iterates. Here we just want the range.
 
                 List<Transaction> transactions = transactionRepository.findByUserIdAndTransactionDateBetween(
                                 userId, startDate, endDate);

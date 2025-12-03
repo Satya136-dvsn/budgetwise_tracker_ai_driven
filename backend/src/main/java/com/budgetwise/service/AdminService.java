@@ -85,19 +85,19 @@ public class AdminService {
 
     public void logAdminAction(Long adminUserId, String actionType, Long targetUserId,
             String targetResource, String details, String ipAddress) {
+        String fullDetails = String.format("Target User: %d, Resource: %s. %s", targetUserId, targetResource, details);
         AuditLog log = AuditLog.builder()
-                .adminUserId(adminUserId)
-                .actionType(actionType)
-                .targetUserId(targetUserId)
-                .targetResource(targetResource)
-                .details(details)
+                .userId(adminUserId)
+                .action(actionType)
+                .details(fullDetails)
                 .ipAddress(ipAddress)
+                .eventTimestamp(java.time.LocalDateTime.now())
                 .build();
         auditLogRepository.save(log);
     }
 
     public Page<AuditLog> getAuditLogs(Pageable pageable) {
-        return auditLogRepository.findAllByOrderByCreatedAtDesc(pageable);
+        return auditLogRepository.findAllByOrderByEventTimestampDesc(pageable);
     }
 
     public void updateUserStatus(Long userId, Boolean isActive) {

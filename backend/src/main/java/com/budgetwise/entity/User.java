@@ -33,6 +33,12 @@ public class User {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
+    @Column(name = "mfa_secret")
+    private String mfaSecret;
+
+    @Column(name = "is_mfa_enabled")
+    private Boolean isMfaEnabled = false;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -109,6 +115,22 @@ public class User {
 
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
+    }
+
+    public String getMfaSecret() {
+        return mfaSecret;
+    }
+
+    public void setMfaSecret(String mfaSecret) {
+        this.mfaSecret = mfaSecret;
+    }
+
+    public Boolean getIsMfaEnabled() {
+        return isMfaEnabled;
+    }
+
+    public void setIsMfaEnabled(Boolean isMfaEnabled) {
+        this.isMfaEnabled = isMfaEnabled;
     }
 
     public LocalDateTime getCreatedAt() {

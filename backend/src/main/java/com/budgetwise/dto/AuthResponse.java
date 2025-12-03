@@ -1,14 +1,15 @@
 package com.budgetwise.dto;
 
 public class AuthResponse {
-    
+
     private String accessToken;
     private String refreshToken;
     private String tokenType = "Bearer";
     private Long expiresIn;
     private UserDto user;
 
-    public AuthResponse() {}
+    public AuthResponse() {
+    }
 
     public AuthResponse(String accessToken, String refreshToken, String tokenType, Long expiresIn, UserDto user) {
         this.accessToken = accessToken;
@@ -63,5 +64,24 @@ public class AuthResponse {
 
     public void setUser(UserDto user) {
         this.user = user;
+    }
+
+    private boolean mfaRequired;
+    private String preAuthToken;
+
+    public boolean isMfaRequired() {
+        return mfaRequired;
+    }
+
+    public void setMfaRequired(boolean mfaRequired) {
+        this.mfaRequired = mfaRequired;
+    }
+
+    public String getPreAuthToken() {
+        return preAuthToken;
+    }
+
+    public void setPreAuthToken(String preAuthToken) {
+        this.preAuthToken = preAuthToken;
     }
 }

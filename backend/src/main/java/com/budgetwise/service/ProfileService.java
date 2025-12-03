@@ -5,6 +5,7 @@ import com.budgetwise.entity.User;
 import com.budgetwise.entity.UserProfile;
 import com.budgetwise.repository.UserProfileRepository;
 import com.budgetwise.repository.UserRepository;
+import com.budgetwise.annotation.Auditable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,6 +70,7 @@ public class ProfileService {
      * Update existing user profile
      */
     @Transactional
+    @Auditable(action = "UPDATE_PROFILE")
     public ProfileDto updateProfile(Long userId, ProfileDto profileDto) {
         UserProfile profile = profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Profile not found for user ID: " + userId));
@@ -83,6 +85,7 @@ public class ProfileService {
      * Update only preferences (theme, language, notifications, etc.)
      */
     @Transactional
+    @Auditable(action = "UPDATE_PREFERENCES")
     public ProfileDto updatePreferences(Long userId, ProfileDto profileDto) {
         UserProfile profile = profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Profile not found for user ID: " + userId));

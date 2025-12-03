@@ -96,6 +96,7 @@ const SignUp = () => {
           <Box>
             <Box sx={{ mb: 3 }}>
               <ProfessionalInput
+                key="firstName"
                 label="First Name"
                 placeholder="Enter your first name"
                 fullWidth
@@ -115,6 +116,7 @@ const SignUp = () => {
 
             <Box sx={{ mb: 3 }}>
               <ProfessionalInput
+                key="lastName"
                 label="Last Name"
                 placeholder="Enter your last name"
                 fullWidth
@@ -164,6 +166,7 @@ const SignUp = () => {
           <Box>
             <Box sx={{ mb: 3 }}>
               <ProfessionalInput
+                key="email"
                 label="Email Address"
                 type="email"
                 placeholder="Enter your email"
@@ -184,6 +187,7 @@ const SignUp = () => {
 
             <Box sx={{ mb: 3 }}>
               <ProfessionalInput
+                key="password"
                 label="Password"
                 type="password"
                 placeholder="Create a strong password"
@@ -204,6 +208,7 @@ const SignUp = () => {
 
             <Box sx={{ mb: 3 }}>
               <ProfessionalInput
+                key="confirmPassword"
                 label="Confirm Password"
                 type="password"
                 placeholder="Confirm your password"
@@ -226,6 +231,7 @@ const SignUp = () => {
           <Box>
             <Box sx={{ mb: 3 }}>
               <ProfessionalInput
+                key="monthlyIncome"
                 label="Monthly Income"
                 type="number"
                 placeholder="Enter your monthly income"
@@ -246,6 +252,7 @@ const SignUp = () => {
 
             <Box sx={{ mb: 3 }}>
               <ProfessionalInput
+                key="savingsTarget"
                 label="Monthly Savings Target"
                 type="number"
                 placeholder="Enter your savings target"

@@ -129,6 +129,7 @@ const TransactionDialog = ({ open, transaction, onClose }) => {
 
     setSuggestingCategory(true);
     setError('');
+    console.log('Calling AI service with:', { description: formData.description, amount: formData.amount });
 
     try {
       const response = await aiService.categorizeTransaction(
@@ -136,16 +137,23 @@ const TransactionDialog = ({ open, transaction, onClose }) => {
         parseFloat(formData.amount)
       );
 
+      console.log('AI service response:', response);
+
       if (response.data && response.data.categoryId) {
         setSuggestion({
           categoryId: response.data.categoryId,
           categoryName: response.data.categoryName || 'Suggested Category',
           confidence: response.data.confidence
         });
+        console.log('Suggestion set:', response.data);
+      } else {
+        console.warn('AI response missing categoryId:', response.data);
+        setError('AI returned invalid response. Please select manually.');
       }
     } catch (err) {
       console.error('AI categorization error:', err);
-      setError('AI suggestion unavailable. Please select manually.');
+      console.error('Error details:', err.response?.data);
+      setError(`AI suggestion failed: ${err.response?.data?.message || err.message || 'Unknown error'}`);
     } finally {
       setSuggestingCategory(false);
     }

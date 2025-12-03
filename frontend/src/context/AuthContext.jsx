@@ -15,7 +15,17 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const data = await authService.login(email, password);
-    setUser(data.user);
+    if (data.user) {
+      setUser(data.user);
+    }
+    return data;
+  };
+
+  const verifyMfa = async (preAuthToken, code) => {
+    const data = await authService.verifyMfa(preAuthToken, code);
+    if (data.user) {
+      setUser(data.user);
+    }
     return data;
   };
 
@@ -33,6 +43,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     login,
+    verifyMfa,
     register,
     logout,
     isAuthenticated: !!user,

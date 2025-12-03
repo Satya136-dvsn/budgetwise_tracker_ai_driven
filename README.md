@@ -1,6 +1,6 @@
 # 💰 BudgetWise - Enterprise Budget Tracking Application
 
-A comprehensive, enterprise-grade budget tracking and financial management application built with Spring Boot and React.
+A comprehensive, enterprise-grade budget tracking and financial management application built with Spring Boot and React, featuring advanced security, AI-powered insights, and real-time analytics.
 
 [![Java](https://img.shields.io/badge/Java-17+-orange.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2+-green.svg)](https://spring.io/projects/spring-boot)
@@ -33,8 +33,18 @@ A comprehensive, enterprise-grade budget tracking and financial management appli
 - 📱 **Responsive Design** - Fully responsive UI working on desktop, tablet, and mobile
 - 📤 **Professional Exports** - Generate beautiful PDF reports with charts and Excel files with native visualizations
 - 🔄 **Automatic Backups** - Database configuration for reliability
-- 📧 **Email Notifications** - (Planned) Budget alerts and reminders
 - ⚡ **Performance** - Optimized with caching and database indexing for sub-second response times
+
+### 🔒 Security Features (NEW!)
+
+- 🔐 **JWT Token Rotation** - Automatic refresh token rotation for enhanced security
+- 🛡️ **Rate Limiting** - Protect against brute force attacks (5 req/min on auth endpoints)
+- 🔑 **Password Strength Validation** - Enforce strong passwords (8+ chars, uppercase, lowercase, digit, special char)
+- 👮 **Role-Based Access Control** - Admin authorization with `@PreAuthorize` annotations
+- 📝 **Session Management** - View and revoke active sessions across devices
+- 🔍 **Audit Logging** - Track all security-critical operations
+- 🚨 **MFA Support** - Two-factor authentication with TOTP
+- 🔐 **Security Headers** - HSTS, CSP, XSS Protection, Frame Options
 
 ## 🏗️ Architecture
 
@@ -48,9 +58,10 @@ backend/
 │   ├── repository/      # Data access layer
 │   ├── entity/          # JPA Entity classes
 │   ├── dto/             # Data transfer objects
-│   ├── security/        # JWT Authentication & authorization
-│   ├── config/          # Configuration classes
-│   └── util/            # Utility helper classes
+│   ├── security/        # JWT, Rate Limiting, Filters
+│   ├── config/          # Security, CORS, Cache configuration
+│   ├── util/            # Password validation, helpers
+│   └── annotation/      # Custom annotations (Auditable)
 ├── src/main/resources/
 │   ├── application.properties
 │   └── application-secrets.properties
@@ -63,8 +74,9 @@ backend/
 frontend/
 ├── src/
 │   ├── components/      # Reusable React components
-│   ├── pages/           # Application pages (Dashboard, Bills, etc.)
-│   ├── services/        # API service clients
+│   │   └── settings/    # SessionManagement, SecuritySettings
+│   ├── pages/           # Application pages (Dashboard, Bills, Analytics)
+│   ├── services/        # API service clients, Axios config
 │   ├── context/         # React Context (Auth, Theme)
 │   ├── theme/           # Material UI theme configuration
 │   └── App.jsx          # Main app component
@@ -108,16 +120,20 @@ spring.datasource.url=jdbc:mysql://localhost:3306/budgetwise?createDatabaseIfNot
 spring.datasource.username=root
 spring.datasource.password=your_password
 
-# JWT Secret (Change this in production!)
-jwt.secret=budgetwise-secret-key-change-this-in-production-to-a-very-long-secure-random-string
-jwt.expiration=3600000
+# JWT Configuration
+jwt.secret=change-this-to-a-very-long-secure-random-string-in-production
+jwt.expiration=900000  # 15 minutes
+jwt.refresh-expiration=604800000  # 7 days
+
+# Security
+spring.security.enabled=true
 ```
 
 ### 4. Start Backend
 
 ```bash
 cd backend
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
 Backend will start on <http://localhost:8080>
@@ -136,12 +152,18 @@ Frontend will start on <http://localhost:3000> (or 5173)
 
 Open <http://localhost:3000> in your browser
 
+**Default Admin Account:**
+
+- Email: <admin@budgetwise.com>
+- Password: Admin123! (Change immediately!)
+
 ## 📚 Documentation
 
-- [Internship Report](INTERNSHIP_REPORT.md) - Comprehensive project documentation for academic/professional submission
-- [Walkthrough Guide](bills_investments_walkthrough.md) - Detailed guide on new features
-- [API Documentation](docs/API.md) - (Coming Soon) Swagger/OpenAPI docs
-- [Installation Guide](QUICKSTART.md) - Quick setup instructions
+- [Security API Documentation](SECURITY_API.md) - Complete security endpoint reference
+- [Security Best Practices](SECURITY_GUIDE.md) - Developer security guidelines
+- [Roadmap](ROADMAP.md) - Future enhancements and timeline
+- [Internship Report](INTERNSHIP_REPORT.md) - Comprehensive project documentation
+- [Walkthrough Guide](bills_investments_walkthrough.md) - Feature guides
 
 ## 🔧 Configuration
 
@@ -161,13 +183,19 @@ spring.jpa.hibernate.ddl-auto=update
 spring.cache.type=simple
 spring.cache.cache-names=dashboard_summary,dashboard_trends
 
+# Security
+jwt.secret=${JWT_SECRET:your-secret-key}
+jwt.expiration=900000
+jwt.refresh-expiration=604800000
+
 # Logging
-logging.level.com.budgetwise=DEBUG
+logging.level.com.budgetwise=INFO
 ```
 
 ### Frontend Configuration
 
 The frontend connects to the backend at `http://localhost:8080` by default.
+Configure in `frontend/src/services/axiosConfig.js`.
 
 ## 🧪 Testing
 
@@ -175,7 +203,7 @@ The frontend connects to the backend at `http://localhost:8080` by default.
 
 ```bash
 cd backend
-./mvnw test
+mvn test
 ```
 
 ### Frontend Tests
@@ -185,13 +213,20 @@ cd frontend
 npm test
 ```
 
+### Security Feature Tests
+
+```bash
+cd backend
+.\test_security_features.ps1
+```
+
 ## 📦 Build for Production
 
 ### Backend
 
 ```bash
 cd backend
-./mvnw clean package
+mvn clean package
 java -jar target/budgetwise-backend-0.0.1-SNAPSHOT.jar
 ```
 
@@ -204,27 +239,47 @@ npm run build
 
 Build output will be in `frontend/dist/`
 
-## 🐳 Docker Deployment (Coming Soon)
-
-```bash
-# Build and run with Docker Compose
-docker-compose up -d
-```
-
 ## 🔐 Security Features
 
+### Authentication & Authorization
+
 - ✅ JWT-based authentication with Bearer tokens
-- ✅ Password encryption with BCrypt
-- ✅ CORS configuration for secure cross-origin requests
+- ✅ Refresh token rotation (automatic on token refresh)
+- ✅ Password encryption with BCrypt (work factor 12)
 - ✅ Role-based authorization (User/Admin)
-- ✅ Secure REST API endpoints
+- ✅ Multi-factor authentication (MFA/TOTP)
+
+### Security Hardening
+
+- ✅ Rate limiting (5 requests/min on auth endpoints)
+- ✅ Password strength validation
+- ✅ Admin-only endpoint protection
+- ✅ Session management (view/revoke sessions)
+- ✅ Audit logging for security events
+- ✅ Security headers (HSTS, CSP, XSS Protection)
+
+### Session Management
+
+- ✅ View active sessions across devices
+- ✅ Revoke individual sessions
+- ✅ "Logout from all devices" functionality
+- ✅ JWT token expiration (15 min access, 7 day refresh)
 
 ## 🌐 API Endpoints
 
 ### Authentication
 
 - `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login and get token
+- `POST /api/auth/login` - Login and get tokens
+- `POST /api/auth/refresh` - Refresh access token (with rotation)
+- `POST /api/auth/setup-mfa` - Setup MFA
+- `POST /api/auth/verify-mfa` - Verify MFA code
+
+### Session Management
+
+- `GET /api/sessions` - Get active sessions
+- `DELETE /api/sessions/{id}` - Revoke specific session
+- `DELETE /api/sessions/all` - Revoke all other sessions
 
 ### Dashboard
 
@@ -237,17 +292,11 @@ docker-compose up -d
 - `POST /api/transactions` - Create transaction
 - `DELETE /api/transactions/{id}` - Delete transaction
 
-### Bills & Investments
+### Admin Endpoints
 
-- `GET /api/bills` - Get recurring bills
-- `GET /api/investments` - Get investment portfolio
-- `GET /api/investments/summary` - Get portfolio performance
+- `GET /api/audit/all` - Get all audit logs (Admin only)
 
-### Exports
-
-- `GET /api/export/dashboard?format={pdf|excel}` - Export dashboard report
-- `GET /api/export/analytics?format={pdf|excel}&timeRange={1M|3M|6M|1Y}` - Export analytics report
-- `GET /api/export/transactions?format={csv|pdf|excel}` - Export transactions
+See [SECURITY_API.md](SECURITY_API.md) for complete API documentation.
 
 ## 🤝 Contributing
 
@@ -280,32 +329,49 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🗺️ Roadmap
 
-### Version 2.0 (Planned)
+See [ROADMAP.md](ROADMAP.md) for detailed future plans.
+
+### Next Up (Q1 2026)
+
+- [ ] Docker containerization
+- [ ] CI/CD pipeline with GitHub Actions
+- [ ] Mobile responsiveness improvements
+- [ ] Unit & Integration tests
+- [ ] Database optimization
+
+### Coming Soon (Q2-Q3 2026)
+
+- [ ] Performance optimization
+- [ ] PDF/Excel report exports
+- [ ] Email notifications
+- [ ] Advanced analytics
+- [ ] Multi-currency support
+
+### Long Term (Q4 2026+)
 
 - [ ] Mobile app (React Native)
-- [ ] Cryptocurrency tracking integration (Real API)
-- [ ] Bill payment gateway integration
-- [ ] Advanced AI financial advisor
-- [ ] Social features (share goals)
-
-### Version 1.5 (Current)
-
-- [x] AI-powered predictions
-- [x] Investment tracking with simulator
-- [x] Recurring bills management
-- [x] Comprehensive analytics
+- [ ] Cryptocurrency tracking
+- [ ] Bill payment integration
+- [ ] Advanced AI advisor
 
 ## 📊 Project Stats
 
-- **Lines of Code**: ~15,000+
-- **Components**: 50+
-- **API Endpoints**: 30+
-- **Tech Stack**: Java, JavaScript, SQL
+- **Lines of Code**: ~20,000+
+- **Components**: 60+
+- **API Endpoints**: 40+
+- **Security Features**: 8+
+- **Tech Stack**: Java, Spring Boot, React, MySQL, JWT
+
+## 🔒 Security Disclosure
+
+If you discover a security vulnerability, please email <security@budgetwise.com> instead of using the issue tracker.
 
 ---
 
 <div align="center">
 
 **Made with ❤️ by the BudgetWise Team**
+
+⭐ Star us on GitHub — it helps!
 
 </div>
